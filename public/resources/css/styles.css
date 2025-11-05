@@ -1,0 +1,189 @@
+:root {
+  --bs-danger: #ff3300;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+  background-image: url("/placeholder.svg?height=1080&width=1920");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  padding: 60px 0;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
+  z-index: 1;
+}
+
+.hero-section .z-2 {
+  position: relative;
+  z-index: 2;
+}
+
+/* Engine showcase circles */
+.engine-showcase {
+  width: 320px;
+  height: 384px;
+}
+
+.engine-circle {
+  position: absolute;
+  border: 4px solid #ff3300;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #1a1a1a;
+  box-shadow: 0 0 30px rgba(255, 51, 0, 0.4);
+}
+
+.engine-circle-1 {
+  width: 224px;
+  height: 224px;
+  top: 0;
+  right: 0;
+}
+
+.engine-circle-2 {
+  width: 192px;
+  height: 192px;
+  bottom: 32px;
+  left: 0;
+}
+
+/* Glow effect for buttons */
+.glow-red {
+  box-shadow: 0 0 20px rgba(255, 51, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.glow-red:hover {
+  box-shadow: 0 0 30px rgba(255, 51, 0, 0.6), 0 0 60px rgba(255, 51, 0, 0.3);
+}
+
+/* Navigation */
+.navbar {
+  background-color: rgba(0, 0, 0, 0.95) !important;
+  backdrop-filter: blur(10px);
+}
+
+.navbar-nav .nav-link {
+  transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #ff3300 !important;
+}
+
+/* Engine cards */
+.engine-card {
+  background-color: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.engine-card:hover {
+  border-color: #ff3300;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.engine-card img {
+  transition: transform 0.3s ease;
+}
+
+.engine-card:hover img {
+  transform: scale(1.1);
+}
+
+.engine-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.engine-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  transition: background-color 0.3s ease;
+}
+
+.engine-card:hover .engine-image::after {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.engine-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 0;
+  }
+
+  .display-4 {
+    font-size: 2.5rem;
+  }
+}
+
+/* Form controls styling */
+.form-select {
+  border-color: #6c757d !important;
+  color: white !important;
+}
+
+.form-select:focus {
+  border-color: #ff3300 !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 51, 0, 0.25);
+}
+
+.form-label {
+  font-weight: 600;
+}
+
+/* Link hover effects */
+a {
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #ff3300;
+}
+
+/* Text utilities */
+.object-fit-cover {
+  object-fit: cover;
+}
+
+.bottom-0 {
+  bottom: 0;
+}
+
+.end-0 {
+  right: 0;
+}
