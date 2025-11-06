@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Route::macro('neo', function ($uri, $component) {
+            return Route::get($uri, $component)
+                ->middleware(['auth', 'admin'])
+                ->name('neo.' . str_replace('/', '.', $uri));
+        });
     }
 }

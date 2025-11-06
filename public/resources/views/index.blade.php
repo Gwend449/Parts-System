@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MotorFinder - Car Engine Website</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css" />
+
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <header id="header" class="sticky-top navbar-dark navbar-expand-md">
         <nav class="navbar navbar-expand-md bg-dark border-bottom border-secondary">
@@ -14,7 +18,8 @@
                 <a class="navbar-brand fw-black fs-5 text-white" href="#home">
                     MOTOR<span class="text-danger">FINDER</span>
                 </a>
-                <button class="navbar-toggler text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler text-warning" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -50,11 +55,13 @@
                     </h1>
                     <p class="fs-5 fw-bold text-light mb-3">КАЧЕСТВО. ПРОВЕРКА. ГАРАНТИЯ.</p>
                     <p class="text-secondary mb-4 fs-6">
-                        Мы подбираем контрактные двигатели под конкретные марки автомобилей. Каждый мотор проходит проверку и поставляется с гарантией.
+                        Мы подбираем контрактные двигатели под конкретные марки автомобилей. Каждый мотор проходит
+                        проверку и поставляется с гарантией.
                     </p>
 
                     <div class="mb-4">
-                        <label for="brandSelect" class="form-label text-secondary fs-6">Выберите марку автомобиля</label>
+                        <label for="brandSelect" class="form-label text-secondary fs-6">Выберите марку
+                            автомобиля</label>
                         <select id="brandSelect" class="form-select bg-dark text-white border-secondary">
                             <option>Выберите марку</option>
                             <option>Toyota</option>
@@ -79,10 +86,11 @@
                 <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center">
                     <div class="position-relative engine-showcase">
                         <div class="engine-circle engine-circle-1">
-                            <img src="../public/images/woman.jpg" alt="Engine 1" class="w-100 h-100 object-fit-cover">
+                            <img src="./public/images/woman.jpg" alt="Engine 1" class="w-100 h-100 object-fit-cover">
                         </div>
                         <div class="engine-circle engine-circle-2">
-                            <img src="/placeholder.svg?height=192&width=192" alt="Engine 2" class="w-100 h-100 object-fit-cover">
+                            <img src="/placeholder.svg?height=192&width=192" alt="Engine 2"
+                                class="w-100 h-100 object-fit-cover">
                         </div>
                     </div>
                 </div>
@@ -97,7 +105,9 @@
                     Недавно <span class="text-danger">добавленные</span>
                 </h2>
                 <p class="text-secondary fs-5">двигатели</p>
-                <div class="mx-auto mt-3" style="width: 100px; height: 2px; background: linear-gradient(to right, transparent, var(--bs-danger), transparent);"></div>
+                <div class="mx-auto mt-3"
+                    style="width: 100px; height: 2px; background: linear-gradient(to right, transparent, var(--bs-danger), transparent);">
+                </div>
             </div>
 
             <div id="enginesContainer" class="row g-4">
@@ -111,8 +121,10 @@
             <div class="row g-5 align-items-center">
                 <div class="col-md-6">
                     <div class="position-relative">
-                        <img src="/placeholder.svg?height=400&width=400" alt="Компания" class="img-fluid border border-secondary rounded">
-                        <div class="position-absolute bottom-0 end-0 border-2 border-danger opacity-50" style="width: 120px; height: 120px; transform: translate(30px, 30px);"></div>
+                        <img src="/placeholder.svg?height=400&width=400" alt="Компания"
+                            class="img-fluid border border-secondary rounded">
+                        <div class="position-absolute bottom-0 end-0 border-2 border-danger opacity-50"
+                            style="width: 120px; height: 120px; transform: translate(30px, 30px);"></div>
                     </div>
                 </div>
 
@@ -126,7 +138,8 @@
                     <div class="mb-4" style="width: 60px; height: 3px; background-color: var(--bs-danger);"></div>
 
                     <p class="fs-5 mb-4">
-                        Мы подбираем контрактные двигатели под конкретные марки автомобилей с высочайшей точностью и ответственностью.
+                        Мы подбираем контрактные двигатели под конкретные марки автомобилей с высочайшей точностью и
+                        ответственностью.
                     </p>
 
                     <div class="mb-4">
@@ -134,7 +147,8 @@
                             <div class="bg-danger" style="width: 3px; height: auto; min-height: 80px;"></div>
                             <div>
                                 <h5 class="fw-bold text-white">Проверка качества</h5>
-                                <p class="text-secondary small">Каждый мотор проходит многоэтапную проверку перед поставкой</p>
+                                <p class="text-secondary small">Каждый мотор проходит многоэтапную проверку перед
+                                    поставкой</p>
                             </div>
                         </div>
                         <div class="d-flex gap-3 mb-3">
@@ -216,7 +230,8 @@
                 </div>
             </div>
 
-            <div class="border-top border-secondary pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <div
+                class="border-top border-secondary pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
                 <p class="text-secondary small mb-3 mb-md-0">© 2025 MotorFinder. Все права защищены.</p>
                 <div class="d-flex gap-4">
                     <a href="#" class="text-secondary text-decoration-none small">Политика конфиденциальности</a>
@@ -227,6 +242,9 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js">
+    </script>
     <script src="script.js"></script>
 </body>
+
 </html>
