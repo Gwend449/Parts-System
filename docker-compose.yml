@@ -1,24 +1,24 @@
 services:
   mysql:
-        image: 'mysql:8.0'
-        container_name: 'mysql-80'
-        working_dir: /application
-        volumes:
-            - dbfile:/var/lib/mysql
-        environment:
-            - MYSQL_ROOT_PASSWORD=root
-            - MYSQL_DATABASE=forge
-            - MYSQL_USER=forge
-            - MYSQL_PASSWORD=forge
-        ports:
-            - '11002:3306'
+    image: 'mysql:8.0'
+    container_name: 'mysql-80'
+    working_dir: /application
+    volumes:
+      - dbfile:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=forge
+      - MYSQL_USER=forge
+      - MYSQL_PASSWORD=forge
+    ports:
+      - '11002:3306'
 
   php-fpm:
     build: ./phpdocker/php
     container_name: php-fpm
     working_dir: /application
     volumes:
-      - ./public:/application
+      - ./public:/application  # Монтируем папку public как /application
       - ./phpdocker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
 
   webserver:
@@ -32,6 +32,21 @@ services:
       - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - '11000:80'
+
+  node:
+    image: node:20-alpine
+    container_name: node
+    working_dir: /application
+    volumes:
+      - ./public:/application
+      - /application/node_modules
+    ports:
+      - '5173:5173'
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - php-fpm
+    environment:
+    - VITE_APP_URL=http://localhost:11000
 
 volumes:
   dbfile:
