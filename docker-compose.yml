@@ -18,7 +18,7 @@ services:
     container_name: php-fpm
     working_dir: /application
     volumes:
-      - ./public:/application  # Монтируем папку public как /application
+      - ./public:/application
       - ./phpdocker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
 
   webserver:
