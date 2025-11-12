@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('generation')->nullable();
             $table->string('years')->nullable();
             $table->timestamps();
+            
         });
 
     }
