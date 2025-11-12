@@ -12,15 +12,18 @@ return new class extends Migration {
     {
         Schema::create('engines', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('car_model_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->string('code')->nullable();
+            $table->foreignId('model_id')->constrained()->cascadeOnDelete();
+            $table->string('code')->index();
             $table->string('volume')->nullable();
-            $table->string('power')->nullable();
+            $table->string('fuel_type')->nullable();
+            $table->string('engine_type')->nullable();
+            $table->string('drive')->nullable();
+            $table->string('transmission')->nullable();
+            $table->string('oem')->nullable();
+            $table->text('note')->nullable();
             $table->decimal('price', 10, 2)->nullable();
             $table->timestamps();
         });
-
     }
 
     /**

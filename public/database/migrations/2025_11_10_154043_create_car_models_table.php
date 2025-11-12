@@ -10,11 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('car_models', function (Blueprint $table) {
+        Schema::create('models', function (Blueprint $table) {
             $table->id();
             $table->foreignId('brand_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->string('slug')->unique();
+            $table->string('generation')->nullable();
+            $table->string('years')->nullable();
             $table->timestamps();
         });
 
