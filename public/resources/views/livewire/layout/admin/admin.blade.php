@@ -14,7 +14,7 @@
 
 <body class="layout-fluid">
     @yield('content')
-
+        
     @livewireScripts
 </body>
 </html>

@@ -1,4 +1,4 @@
-@extends('livewire.layout.admin.admin')
+<!-- @extends('livewire.layout.admin.admin') -->
 
 @section('content')
 <div class="p-4">
