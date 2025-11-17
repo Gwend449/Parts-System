@@ -10,12 +10,12 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-Route::middleware('auth')->prefix('admin')->as('admin.')->group(function () {
-    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+// Route::middleware('auth')->prefix('admin')->as('admin.')->group(function () {
+//     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
-    Route::view('/brands', 'livewire.admin.stub')->name('brands');
-    Route::view('/models', 'livewire.admin.stub')->name('models');
-    Route::view('/engines', 'livewire.admin.stub')->name('engines');
-});
+//     Route::view('/brands', 'livewire.admin.stub')->name('brands');
+//     Route::view('/models', 'livewire.admin.stub')->name('models');
+//     Route::view('/engines', 'livewire.admin.stub')->name('engines');
+// });
 
 require __DIR__.'/auth.php';

@@ -12,16 +12,29 @@ return new class extends Migration {
     {
         Schema::create('engines', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('model_id')->constrained()->cascadeOnDelete();
-            $table->string('code')->index();
-            $table->string('volume')->nullable();
-            $table->string('fuel_type')->nullable();
-            $table->string('engine_type')->nullable();
-            $table->string('drive')->nullable();
-            $table->string('transmission')->nullable();
-            $table->string('oem')->nullable();
-            $table->text('note')->nullable();
+
+            // Уникальный идентификатор из колонки A
+            $table->string('slug')->unique()->index();
+
+            // Название объявления (колонка L)
+            $table->string('title')->nullable();
+
+            // Цена (колонка J)
             $table->decimal('price', 10, 2)->nullable();
+
+            // Производитель / марка (колонка U)
+            $table->string('brand')->nullable();
+
+            // Модель + кузов + генерация (колонка Y — CSV/строка)
+            $table->text('fit_for')->nullable();
+
+            // Описание без HTML (колонка I)
+            $table->text('description')->nullable();
+
+            // OEM номер (колонка V)
+            $table->string('oem')->nullable();
+
+            // Дата добавления из Excel не нужна — используем timestamps
             $table->timestamps();
         });
     }
