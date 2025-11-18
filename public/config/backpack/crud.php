@@ -335,7 +335,7 @@ return [
         // "ru_MD" => "Russian (Moldova)",
         // "ru_RU" => "Russian (Russia)",
         // "ru_UA" => "Russian (Ukraine)",
-        // "ru" => "Russian",
+        "ru" => "Russian",
         // "rwk_TZ" => "Rwa (Tanzania)",
         // "rwk" => "Rwa",
         // "saq_KE" => "Samburu (Kenya)",

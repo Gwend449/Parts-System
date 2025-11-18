@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\EnginesRequest;
+use Backpack\ImportOperation\ImportOperation;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -18,7 +19,7 @@ class EnginesCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-
+    use \RedSquirrelStudio\LaravelBackpackImportOperation\ImportOperation;
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      *
@@ -28,7 +29,7 @@ class EnginesCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Engine::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/engines');
-        CRUD::setEntityNameStrings('engines', 'engines');
+        CRUD::setEntityNameStrings('двигатель', 'двигатели');
     }
 
     /**
@@ -39,12 +40,11 @@ class EnginesCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::setFromDb(); // set columns from db columns.
-
-        /**
-         * Columns can be defined using the fluent syntax:
-         * - CRUD::column('price')->type('number');
-         */
+        CRUD::column('slug')->label('Маркировка');
+        CRUD::column('title')->label('Название');
+        CRUD::column('price')->label('Цена');
+        CRUD::column('brand')->label('Бренд');
+        CRUD::column('oem')->label('OEM');
     }
 
     /**
@@ -73,5 +73,57 @@ class EnginesCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    protected function setupImportOperation()
+    {
+        CRUD::setValidation(EnginesRequest::class);
+
+        CRUD::addField([
+            'name' => 'file',
+            'label' => 'Excel файл',
+            'type' => 'upload',
+            'upload' => true,
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'slug',
+            'label' => 'Маркировка',
+            'type' => 'text',
+            'primary_key' => true,
+        ]);
+        CRUD::addColumn([
+            'name' => 'title',
+            'label' => 'Название',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'price',
+            'label' => 'Цена',
+            'type' => 'number',
+        ]);
+        CRUD::addColumn([
+            'name' => 'brand',
+            'label' => 'Производитель',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'fit_for',
+            'label' => 'Совместимость',
+            'type' => 'textarea',
+        ]);
+        CRUD::addColumn([
+            'name' => 'oem',
+            'label' => 'OEM',
+            'type' => 'text',
+        ]);
+        CRUD::addColumn([
+            'name' => 'description',
+            'label' => 'Описание',
+            'type' => 'textarea',
+        ]);
+
+        // Импортёр класса
+        $this->crud->setOperationSetting('importer', \App\Imports\EnginesImport::class);
     }
 }
