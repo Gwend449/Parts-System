@@ -106,6 +106,19 @@
         </div>
     </section>
 
+    <section id="brands" class="brands-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">ВЫБЕРИТЕ МАРКУ АВТО</h2>
+                <div class="accent-line"></div>
+            </div>
+
+            <div class="brands-grid" id="brandsContainer">
+                <!-- Brand buttons will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
     <section id="about" class="py-5 bg-dark text-white">
         <div class="container-lg">
             <div class="row g-5 align-items-center">
