@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1749 АвтоРазбор</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    @vite(['resources/css/styles.css'])
 </head>
 @livewireStyles
 
@@ -14,14 +14,14 @@
     <!-- Navigation -->
     <nav class="navbar navbar-dark bg-dark sticky-top shadow">
         <div class="container-lg">
-            <a class="navbar-brand" href="{{ route('home') }}">
-                <span class="text-warning fw-bold fs-5">Амур Авто</span>
+            <a class="navbar-brand text-brand" href="{{ route('home') }}">
+                <span class="fw-bold fs-5">1749</span> <span class="fw-bold fs-5 text-light">АвтоРазбор</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto gap-3">
+            </button> -->
+            <div class="navbar-nav" id="navbarNav">
+                <ul class="navbar-nav d-flex flex-row gap-3 mb-0">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('home') }}">Главная</a>
                     </li>

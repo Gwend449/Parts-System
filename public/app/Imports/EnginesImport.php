@@ -27,6 +27,7 @@ class EnginesImport implements ToModel
             'oem'         => $row[21],  // V
             'fit_for'     => $row[24],  // Y
             'description' => $this->clean($row[8]), // I
+            'image'       => $row[10] ?? null,
         ]);
     }
 

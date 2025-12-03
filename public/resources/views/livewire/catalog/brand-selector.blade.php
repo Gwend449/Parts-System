@@ -9,7 +9,7 @@
                     style="cursor: pointer;
                                border-width: 2px;
                                border-style: solid;
-                               {{ $selectedBrand === $brand ? 'border-color: #ffc107; background-color: #ffc107; color: #000;' : 'border-color: #dee2e6; color: #000;' }}">
+                               {{ $selectedBrand === $brand ? 'border-color: rgb(198, 123, 22); background-color: rgb(198, 123, 22); color: #000;' : 'border-color: #dee2e6; color: #000;' }}">
 
                     <p class="fw-bold mb-0">
                         {{ $brand }}

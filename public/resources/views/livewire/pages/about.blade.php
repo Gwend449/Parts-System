@@ -5,7 +5,7 @@
     <div class="container-lg py-5">
         <h1 class="fs-2 fw-bold mb-5">О компании</h1>
 
-        <div class="row g-5 mb-5 align-items-center">
+        <div class="row g-5 mb-5 mt-3">
             <div class="col-lg-6">
                 <h2 class="fs-4 fw-bold mb-4">История</h2>
                 <p class="lead text-dark mb-4">
@@ -19,7 +19,7 @@
                 </p>
             </div>
             <div class="col-lg-6">
-                <img src="public/warehouse-car-parts-storage.jpg" alt="Company warehouse" class="img-fluid rounded shadow">
+                <img src="/images/engine-parts-warehouse.jpg" alt="Company warehouse" class="img-fluid rounded shadow">
             </div>
         </div>
 
