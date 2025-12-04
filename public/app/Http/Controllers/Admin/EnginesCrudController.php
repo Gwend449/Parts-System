@@ -8,6 +8,7 @@ use Backpack\ImportOperation\ImportOperation;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
+
 /**
  * Class EnginesCrudController
  * @package App\Http\Controllers\Admin
@@ -71,12 +72,7 @@ class EnginesCrudController extends CrudController
     protected function setupCreateOperation()
     {
         CRUD::setValidation(EnginesRequest::class);
-        CRUD::setFromDb(); // set fields from db columns.
-
-        /**
-         * Fields can be defined using the fluent syntax:
-         * - CRUD::field('price')->type('number');
-         */
+        CRUD::setFromDb();
     }
 
     /**
