@@ -19,7 +19,12 @@ class EngineImportNormalizer
         'KIA',
         'HYUNDAI',
         'FORD',
-        'VOLKSWAGEN'
+        'VOLKSWAGEN',
+        'SUZUKI',
+        'OPEL',
+        'SSANGYONG',
+        'PEUGEOT'
+
     ];
 
     public function normalize(array $row): ?EngineData

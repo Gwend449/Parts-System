@@ -88,3 +88,102 @@ button.btn.btn-warning.w-100.fw-bold.text-light {
     border-radius: 50%;
     color: #1a3a6b;
 }
+
+/* ================================
+   Modern Admin Topbar
+================================= */
+
+/* Панель обёртка */
+.admin-topbar-wrapper {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: auto;
+    max-width: 960px;
+    padding: 0.5rem;
+    pointer-events: none; /* позволяет клики по внутренним элементам */
+}
+
+/* Панель */
+.admin-topbar {
+    display: flex;
+    gap: 1rem;
+    background: linear-gradient(90deg, rgb(198,123,22), rgb(220,150,50));
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover эффект панели */
+.admin-topbar:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* Кнопки */
+.admin-topbar-btn {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    background-color: rgb(84,91,102);
+    font-weight: 500;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.admin-topbar-btn:hover {
+    background-color: rgb(70,75,85);
+    transform: translateY(-1px);
+}
+
+/* Главная кнопка "Добавить мотор" */
+.admin-topbar-btn-primary {
+    background: #fff;
+    color: rgb(198,123,22);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(198,123,22,0.25);
+}
+
+.admin-topbar-btn-primary:hover {
+    background: rgb(255,243,220);
+    color: rgb(160,100,18);
+    transform: translateY(-1px);
+}
+
+/* Отступ контента, чтобы панель не перекрывала страницу */
+
+
+/* Адаптивность: на маленьких экранах панель сжимается */
+@media (max-width: 600px) {
+    .admin-topbar {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+    }
+    body {
+        padding-top: 6rem;
+    }
+}
+
+
+.pagination .page-item.active .page-link {
+    background-color: rgb(198, 123, 22) !important; /* оранжевый фон */
+    color: black !important;             /* черный текст */
+    border-color: rgb(198, 123, 22) !important;
+}
+
+/* Остальные кнопки */
+.pagination .page-link {
+    color: black;
+}
+
+/* Отступ между кнопками */
+.pagination .page-item {
+    margin-right: 0.25rem;
+}

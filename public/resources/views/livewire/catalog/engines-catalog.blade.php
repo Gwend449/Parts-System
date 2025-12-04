@@ -54,7 +54,8 @@
                                 Подробнее
                             </a>
 
-                            <button wire:click="openModal({{ $engine->id }})" class="btn bg-font-color btn-sm w-50 text-light">
+                            <button wire:click="openModal({{ $engine->id }})"
+                                class="btn bg-font-color btn-sm w-50 text-light">
                                 Стоимость
                             </button>
                         </div>
@@ -65,7 +66,9 @@
         @endforeach
     </div>
 
-
+    <div class="mt-5 text-left">
+        {{ $engines->links('pagination::bootstrap-5') }}
+    </div>
 
     @if($showModal)
         <div class="modal fade show d-block" tabindex="-1"
