@@ -48,6 +48,7 @@ class EnginesCrudController extends CrudController
         CRUD::column('brand')->label('Бренд');
         CRUD::column('oem')->label('OEM');
 
+
         CRUD::set('import.unique_by', 'slug');
 
         CRUD::set('import.columns', [
@@ -62,6 +63,46 @@ class EnginesCrudController extends CrudController
 
         CRUD::set('import.file_field', 'file');
     }
+
+    protected function setupShowOperation()
+    {
+        CRUD::column('slug')
+            ->label('Маркировка')
+            ->type('text')
+            ->wrapper(['class' => 'form-group col-md-4']); // компактная ширина
+
+        CRUD::column('title')
+            ->label('Название')
+            ->type('text')
+            ->wrapper(['class' => 'form-group col-md-4']);
+
+        CRUD::column('price')
+            ->label('Цена')
+            ->type('number')
+            ->wrapper(['class' => 'form-group col-md-2']);
+
+        CRUD::column('brand')
+            ->label('Марка')
+            ->type('text')
+            ->wrapper(['class' => 'form-group col-md-4']);
+
+        CRUD::column('fit_for')
+            ->label('Совместимость')
+            ->type('textarea')
+            ->wrapper(['class' => 'form-group col-md-10']);
+
+        CRUD::column('description')
+            ->label('Описание')
+            ->type('textarea') // текстовое поле, растягивается
+            ->wrapper(['class' => 'form-group col-12 text-ho']); // растянуть на всю ширину
+
+        CRUD::column('oem')
+            ->label('OEM')
+            ->type('text')
+            ->wrapper(['class' => 'form-group col-md-4']);
+    }
+
+
 
     /**
      * Define what happens when the Create operation is loaded.
