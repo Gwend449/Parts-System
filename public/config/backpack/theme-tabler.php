@@ -12,7 +12,6 @@ return [
     | config/backpack/ui.php when this theme is in use.
     |
     */
-
     /**
      * 1st layer of customization
      *

@@ -30,11 +30,6 @@ class Engine extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function carModel()
-    {
-        return $this->belongsTo(CarModel::class);
-    }
-
     /*
     |--------------------------------------------------------------------------
     | SCOPES

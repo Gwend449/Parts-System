@@ -32,7 +32,6 @@ return [
     | (eg. config/backpack/theme-tabler.php) when that theme is in use.
     |
     */
-
     // Date & Datetime Format Syntax: https://carbon.nesbot.com/docs/#api-localization
     'default_date_format' => 'D MMM YYYY',
     'default_datetime_format' => 'D MMM YYYY, HH:mm',
@@ -46,7 +45,7 @@ return [
     // ----
 
     // Project name - shown in the window title
-    'project_name' => 'Admin Panel',
+    'project_name' => '1749',
 
     // Content of the HTML meta robots tag to prevent indexing and link following
     'meta_robots_content' => 'noindex, nofollow',
