@@ -20,7 +20,15 @@ class Engine extends Model implements HasMedia
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
+    protected $fillable = [
+        'slug',
+        'title',
+        'price',
+        'brand',
+        'oem',
+        'fit_for',
+        'description',
+    ];
     protected $table = 'engines';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
@@ -34,9 +42,8 @@ class Engine extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('images')
-            ->useDisk('public') // или s3
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg'])
-            ->useFallbackUrl('/images/placeholder-engine.jpg'); // если нет изображения
+            ->useDisk('public') // диска public достаточно для админки
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 
     public function getAllImages(): array
@@ -65,33 +72,19 @@ class Engine extends Model implements HasMedia
 
     }
 
-    public function getImageUrlsAttribute(): array
+    protected static function booted()
     {
-        if (!$this->images || !is_array($this->images)) {
-            return [];
-        }
+        static::saved(function ($engine) {
+            $files = request()->file('images');
 
-        $urls = [];
-        foreach ($this->images as $img) {
-            // Если $img массив, берем ключ 'path' (Backpack иногда так сохраняет)
-            if (is_array($img) && isset($img['path'])) {
-                $img = $img['path'];
+            if ($files && is_array($files)) {
+                foreach ($files as $file) {
+                    if ($file instanceof \Illuminate\Http\UploadedFile) {
+                        $engine->addMedia($file)->toMediaCollection('images');
+                    }
+                }
             }
-            if ($img) {
-                $urls[] = asset('storage/' . $img);
-            }
-        }
-
-        return $urls;
-    }
-
-    public function setImagesAttribute($files)
-    {
-        if ($files && is_array($files)) {
-            foreach ($files as $file) {
-                $this->addMedia($file)->toMediaCollection('images');
-            }
-        }
+        });
     }
     /*
     |--------------------------------------------------------------------------

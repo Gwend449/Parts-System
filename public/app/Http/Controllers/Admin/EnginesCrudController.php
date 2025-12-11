@@ -115,7 +115,7 @@ class EnginesCrudController extends CrudController
         CRUD::addField([
             'name' => 'images',
             'label' => 'Фотографии мотора',
-            'type' => 'upload_multiple', // бесплатное поле
+            'type' => 'upload_multiple',
             'upload' => true,
             'disk' => 'public',
         ]);
@@ -132,15 +132,6 @@ class EnginesCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-        CRUD::addField([
-            'name' => 'images',
-            'label' => 'Фотографии мотора',
-            'type' => 'upload_multiple',
-            'upload' => true,
-            'disk' => 'public',
-            'prefix' => 'storage/', // важно, чтобы миниатюры отображались
-        ]);
-
         $this->setupCreateOperation();
     }
 
