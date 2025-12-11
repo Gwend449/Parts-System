@@ -21,21 +21,15 @@
                 <div class="border rounded shadow-sm p-3 bg-white">
 
                     <!-- Main image -->
-                    <img id="mainImage" src="/images/placeholder-engine.jpg"
-                        class="img-fluid rounded w-90 mb-3" alt="{{ $engine->title }}" />
+                    <img id="mainImage" src="{{ $engine->getAllImages()[0] ?? '/images/placeholder-engine.jpg' }}"
+                        class="main-image" />
 
                     <!-- Thumbnails -->
                     <div class="d-flex gap-3">
-                        <img src="/images/placeholder-engine.jpg" class="product-thumb"
-                            onclick="document.getElementById('mainImage').src=this.src" />
-                        @if($engine->image_2)
-                            <img src="{{ $engine->image_2 }}" class="product-thumb"
+                        @foreach($engine->getAllImages() as $img)
+                            <img src="{{ $img }}" class="product-thumb"
                                 onclick="document.getElementById('mainImage').src=this.src" />
-                        @endif
-                        @if($engine->image_3)
-                            <img src="{{ $engine->image_3 }}" class="product-thumb"
-                                onclick="document.getElementById('mainImage').src=this.src" />
-                        @endif
+                        @endforeach
                     </div>
 
                 </div>

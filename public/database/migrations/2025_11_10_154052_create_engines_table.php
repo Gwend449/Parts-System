@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
 
             // Уникальный идентификатор из колонки A
-            $table->string('slug')->unique()->index();
+            $table->string('slug')->index();
 
             // Название объявления (колонка L)
             $table->string('title')->nullable();
@@ -34,8 +34,11 @@ return new class extends Migration {
             // OEM номер (колонка V)
             $table->string('oem')->nullable();
 
+            $table->unique(['brand', 'oem']);
+
             // Дата добавления из Excel не нужна — используем timestamps
             $table->timestamps();
+
         });
     }
 

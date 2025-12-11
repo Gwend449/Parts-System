@@ -16,23 +16,23 @@ class EnginesImport implements ToCollection, WithStartRow
         $normalizer = new EngineImportNormalizer();
         $validator = new EngineImportValidator();
 
+        // 1. Собираем все строки
         foreach ($rows as $index => $row) {
-            // Пропускаем заголовки (если нужно)
-            if ($index === 0) {
+            if ($index === 0)
                 continue;
-            }
+            $normalizer->normalize($row->toArray());
+        }
 
-            $dto = $normalizer->normalize($row->toArray());
-
-            // Пропускаем строки с price <= 1749
-            if (!$dto) {
-                continue;
-            }
+        // 2. Получаем уникальные моторы
+        foreach ($normalizer->getUniqueEngines() as $dto) {
 
             $validator->validate($dto);
 
             \App\Models\Engine::updateOrCreate(
-                ['slug' => $dto->slug],
+                [
+                    'brand' => $dto->brand,
+                    'oem' => $dto->oem,
+                ],
                 $dto->toArray()
             );
         }

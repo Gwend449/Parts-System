@@ -27,25 +27,58 @@ class EngineImportNormalizer
 
     ];
 
-    public function normalize(array $row): ?EngineData
+    private array $seen = [];
+
+    public function normalize(array $row): void
     {
         $price = $this->toPrice($row[9] ?? null);
 
         if ($price <= 1749) {
-            return null; // или выбрасывать исключение, если нужно
+            return;
         }
 
-        return new EngineData(
-            slug: $row[0],
+        $brand = $this->detectBrand($row);
+        $oem = $this->detectOEM($row);
+        $slug = trim($row[0] ?? '');
+
+        // Генерируем корректный ключ уникальности
+        $uniqueKey = $this->makeUniqueKey($brand, $oem, $slug);
+
+        $engine = new EngineData(
+            slug: $slug,
             title: $row[11] ?? null,
-            price: $this->toPrice($row[9] ?? null),
-            brand: $this->detectBrand($row),
-            oem: $this->detectOEM($row),
+            price: $price,
+            brand: $brand,
+            oem: $oem,
             fit_for: $this->detectFitFor($row),
             description: $this->cleanHtml($row[8] ?? ''),
         );
+
+        // Логика объединения: минимальная цена
+        if (isset($this->seen[$uniqueKey])) {
+
+            if ($engine->price < $this->seen[$uniqueKey]->price) {
+                $this->seen[$uniqueKey]->price = $engine->price;
+            }
+
+        } else {
+            $this->seen[$uniqueKey] = $engine;
+        }
     }
 
+    private function makeUniqueKey(string $brand, string $oem, string $slug): string
+    {
+        if ($oem !== 'NO_OEM') {
+            return $brand . '_' . $oem;
+        }
+
+        return $brand . '_NOOEM_' . $slug;
+    }
+
+    public function getUniqueEngines(): array
+    {
+        return array_values($this->seen);
+    }
     private function cleanHtml(?string $html): string
     {
         $text = strip_tags($html);
