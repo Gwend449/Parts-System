@@ -6,22 +6,20 @@ use Livewire\Component;
 
 class BrandSelector extends Component
 {
-
-    public $brands = [
-        "ALFA ROMEO",
-        "AUDI",
-        "BMW",
-        "FORD",
-        "HONDA",
-        "HYUNDAI",
-        "ISUZU",
-        "JAGUAR",
-        "JEEP",
-        "KIA",
-        "MAZDA","MERCEDES","MAN","MINI","MITSUBISHI","NISSAN","OPEL","PEUGEOT","PORSCHE","RENAULT","SUBARU","SUZUKI","TOYOTA","VOLKSWAGEN","VOLVO",
-    ];
-
+    public $brands;
     public $selectedBrand = null;
+
+    public function mount()
+    {
+        $brandsConfig = config('brands');
+
+        if (!is_array($brandsConfig)) {
+            throw new \Exception('Config brands.php not loaded');
+        }
+
+        $this->brands = array_keys($brandsConfig);
+    }
+
 
     public function selectBrand($brand)
     {
@@ -31,10 +29,12 @@ class BrandSelector extends Component
     public function goToCatalog()
     {
         if ($this->selectedBrand) {
-            return redirect()->to('/catalog?brand=' . urlencode($this->selectedBrand));
+            return redirect()->to(
+                route('catalog', ['brand' => $this->selectedBrand])
+            );
         }
 
-        return redirect()->to('/catalog');
+        return redirect()->to(route('catalog'));
     }
 
     public function render()
@@ -42,3 +42,4 @@ class BrandSelector extends Component
         return view('livewire.catalog.brand-selector');
     }
 }
+

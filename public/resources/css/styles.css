@@ -8,8 +8,20 @@
     margin: 0 auto;
 }
 
-a.btn.btn-warning.btn-lg.fw-bold,
-.w-100 {
+.btn-brand-primary {
+    background-color: #c67b16;
+    border-color: rgb(198, 123, 22);
+    color: #000;
+    font-weight: 700;
+}
+
+.btn-brand-primary:hover {
+    background-color: #fff;
+    border-color: rgb(220, 65, 0);
+    color: #000;
+}
+
+a.btn.btn-warning.btn-lg.fw-bold {
     background-color: #c67b16 !important;
     border-color: rgb(198, 123, 22) !important;
     color: black !important;

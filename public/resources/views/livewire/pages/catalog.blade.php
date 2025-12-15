@@ -7,7 +7,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('home') }}"
-                            class="text-warning text-decoration-none">Главная</a></li>
+                            class="text-brand text-decoration-none">Главная</a></li>
                     <li class="breadcrumb-item active">Каталог моторов</li>
                 </ol>
             </nav>
@@ -51,7 +51,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Модель авто</label>
-                            <select class="form-select rounded-3 border-2 py-2" required>
+                            
                                 <option value="">Выберите марку...</option>
                                 @foreach(\App\Models\Engine::select('brand')->distinct()->pluck('brand') as $b)
                                     <option value="{{ $b }}">{{ $b }}</option>
@@ -65,7 +65,7 @@
                                 placeholder="Добавьте дополнительную информацию..."></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-warning w-100 fw-bold py-2 rounded-3">
+                        <button type="submit" class="btn btn-brand-primary w-100 fw-bold py-2 rounded-3">
                             Отправить запрос
                         </button>
 

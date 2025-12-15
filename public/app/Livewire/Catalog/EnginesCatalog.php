@@ -18,12 +18,18 @@ class EnginesCatalog extends Component
         'price_to' => null,
     ];
 
+    protected $queryString = [
+        'filters.brand' => ['as' => 'brand'],
+    ];
+
     public $selectedEngine = null;
     public $showModal = false;
 
     public function mount()
     {
-
+        if (request()->has('brand')) {
+            $this->filters['brand'] = request('brand');
+        }
     }
 
     public function applyFilters()
@@ -50,7 +56,16 @@ class EnginesCatalog extends Component
     public function render()
     {
         $engines = Engine::query()
-            ->when($this->filters['brand'], fn($q) => $q->where('brand', $this->filters['brand']))
+            ->when($this->filters['brand'], function ($q) {
+                $brand = $this->filters['brand'];
+
+                if (config()->has("brands.$brand")) {
+                    $aliases = config("brands.$brand");
+                    $q->whereIn('brand', $aliases);
+                } else {
+                    $q->where('brand', $brand);
+                }
+            })
             ->when($this->filters['price_from'], fn($q) => $q->where('price', '>=', $this->filters['price_from']))
             ->when($this->filters['price_to'], fn($q) => $q->where('price', '<=', $this->filters['price_to']))
             ->orderBy('title')

@@ -12,5 +12,4 @@ class EngineController extends Controller
         return view('livewire.pages.engine-show', compact('engine'));
     }
 
-    
 }
