@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-    <!-- Modern Product Page with Engine PHP Data Integration -->
     <div class="page-container py-5">
 
         <!-- Breadcrumb -->
@@ -21,21 +20,18 @@
                 <div class="border rounded shadow-sm p-3 bg-white">
 
                     <!-- Main image -->
-                    <img id="mainImage" src="/images/placeholder-engine.jpg"
-                        class="img-fluid rounded w-90 mb-3" alt="{{ $engine->title }}" />
+                    <div class="ratio ratio-1x1 mb-3 bg-white rounded overflow-hidden">
+                        <img id="mainImage" src="{{ $engine->getAllImages()[0] ?? asset('images/placeholder-engine.jpg') }}"
+                            class="img-fluid w-100 h-100" style="object-fit: contain;" alt="{{ $engine->title }}">
+                    </div>
 
                     <!-- Thumbnails -->
-                    <div class="d-flex gap-3">
-                        <img src="/images/placeholder-engine.jpg" class="product-thumb"
-                            onclick="document.getElementById('mainImage').src=this.src" />
-                        @if($engine->image_2)
-                            <img src="{{ $engine->image_2 }}" class="product-thumb"
-                                onclick="document.getElementById('mainImage').src=this.src" />
-                        @endif
-                        @if($engine->image_3)
-                            <img src="{{ $engine->image_3 }}" class="product-thumb"
-                                onclick="document.getElementById('mainImage').src=this.src" />
-                        @endif
+                    <div class="d-flex gap-3 flex-wrap justify-content-start">
+                        @foreach($engine->getAllImages() as $img)
+                            <img src="{{ $img }}" class="img-thumbnail"
+                                style="width:90px;height:90px;object-fit:cover;cursor:pointer;"
+                                onclick="document.getElementById('mainImage').src=this.src" alt="">
+                        @endforeach
                     </div>
 
                 </div>
@@ -59,24 +55,8 @@
                                     <td class="fw-semibold">{{ $engine->oem }}</td>
                                 </tr>
                                 <tr>
-                                    <td>Тип двигателя</td>
-                                    <td class="fw-semibold">{{ $engine->engine_type ?? '—' }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Объем ДВС</td>
-                                    <td class="fw-semibold">{{ $engine->volume ?? '—' }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Мощность (Л.С.)</td>
-                                    <td class="fw-semibold">{{ $engine->horsepower ?? '—' }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Модель авто</td>
-                                    <td class="fw-semibold">{{ $engine->model ?? '—' }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Год выпуска</td>
-                                    <td class="fw-semibold">{{ $engine->years ?? '—' }}</td>
+                                    <td>Совместимость</td>
+                                    <td class="fw-semibold">{{ $engine->fit_for ?? '—' }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -97,16 +77,13 @@
 
             </div>
         </div>
-        <div class="row">
+        <div class="row mt-lg-4 mt-3">
 
             <!-- Left Column: Description -->
-            <div class="col-lg-6 col-12 pe-lg-4 border-end">
+            <div class="col-lg-6 col-12 pe-lg-4 border-lg-end">
                 <h4 class="fw-bold text-brand mb-3">Описание</h4>
                 <p class="text-muted mb-3" style="line-height:1.6;">
                     {{ $engine->description ?: 'Описание будет добавлено позже.' }}
-                </p>
-                <p class="text-muted mb-0" style="line-height:1.6;">
-                    <strong>Совместимость:</strong> {{ $engine->fit_for ?: 'Информация уточняется.' }}
                 </p>
             </div>
 

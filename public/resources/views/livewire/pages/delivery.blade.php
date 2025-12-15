@@ -81,11 +81,19 @@
         <div class="alert alert-light border border-warning border-3 p-5 mb-5">
             <h3 class="fs-4 fw-bold mb-4">Возникли вопросы?</h3>
             <p class="mb-4">Свяжитесь с нами и мы ответим на все вопросы о доставке и оплате</p>
-            <div>
-                <p class="fw-bold mb-3">Телефоны:</p>
-                <p class="fs-5 mb-2">+7 (924) 735-47-84</p>
-                <p class="fs-5">+7 (914) 703-66-12</p>
+
+            <div class="row g-1 w-10">
+                <div class="col">
+                    <p class="fw-bold mb-3">Телефоны:</p>
+                    <p class="fs-5 mb-2">+7 (910) 121-98-98</p>
+                    <p class="fs-5">+7 (910) 121-61-31</p>
+                </div>
+                <div class="col mb-1">
+                    <h5 class="text-muted small fw-bold text-uppercase mb-2">Email</h5>
+                    <p class="fs-5 fw-bold">fasti.s02@mail.ru</p>
+                </div>
             </div>
+
         </div>
     </div>
 @endsection

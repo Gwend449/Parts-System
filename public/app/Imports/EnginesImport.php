@@ -2,42 +2,44 @@
 
 namespace App\Imports;
 
-use App\Models\Engine;
-use Maatwebsite\Excel\Concerns\ToModel;
+use App\Services\EngineImportNormalizer;
+use App\Http\Requests\EngineImportValidator;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 
-class EnginesImport implements ToModel
+
+class EnginesImport implements ToCollection, WithStartRow
 {
-    /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        // Пропускаем первую строку (заголовки)
-        if ($row[0] === 'Уникальный идентификатор объявления') {
-            return null;
+        $normalizer = new EngineImportNormalizer();
+        $validator = new EngineImportValidator();
+
+        // 1. Собираем все строки
+        foreach ($rows as $index => $row) {
+            if ($index === 0)
+                continue;
+            $normalizer->normalize($row->toArray());
         }
 
-        return new Engine([
-            'slug'        => $row[0],   // A
-            'title'       => $row[11],  // L
-            'price'       => $this->toPrice($row[9]), // J
-            'brand'       => $row[20],  // U
-            'oem'         => $row[21],  // V
-            'fit_for'     => $row[24],  // Y
-            'description' => $this->clean($row[8]), // I
-            'image'       => $row[10] ?? null,
-        ]);
+        // 2. Получаем уникальные моторы
+        foreach ($normalizer->getUniqueEngines() as $dto) {
+
+            $validator->validate($dto);
+
+            \App\Models\Engine::updateOrCreate(
+                [
+                    'brand' => $dto->brand,
+                    'oem' => $dto->oem,
+                ],
+                $dto->toArray()
+            );
+        }
     }
 
-    private function clean($html)
+    public function startRow(): int
     {
-        return trim(preg_replace('/\s+/', ' ', strip_tags($html)));
-    }
-
-    private function toPrice($value)
-    {
-        return floatval(preg_replace('/[^\d\.]/', '', $value));
+        return 5;
     }
 }

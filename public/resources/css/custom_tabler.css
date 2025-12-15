@@ -1,0 +1,172 @@
+/* ============================
+   Custom Super Style for Backpack + Tabler
+   Author: Generated for your theme
+============================ */
+
+/* 1️⃣ Основные переменные */
+:root {
+    --primary: rgb(198, 123, 22);
+    --primary-dark: rgb(160, 100, 18);
+    --body-color: rgb(0, 0, 0);
+    --gray-600: rgb(84, 91, 102);
+    --gray-200: rgb(240, 240, 240);
+    --bg-light: rgb(245, 245, 245);
+    --bg-lighter: rgb(255, 255, 255);
+    --bg-black: black;
+    --table-hover-bg: rgb(255, 233, 190);
+    --table-striped-bg: rgb(255, 243, 220);
+}
+
+/* 2️⃣ Body */
+body {
+    background-color: var(--bg-light);
+    color: var(--body-color);
+}
+
+/* 3️⃣ Navbar */
+.navbar,
+.navbar-brand {
+    background-color: var(--bg-black);
+    color: var(--body-color);
+}
+
+/* 4️⃣ Sidebar */
+.sidebar {
+    background-color: var(--bg-light);
+    color: var(--gray-600);
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: var(--table-striped-bg);
+    color: var(--body-color);
+}
+
+/* 6️⃣ Cards */
+.card {
+    background-color: var(--bg-lighter);
+    border: 1px solid var(--gray-200);
+    color: var(--body-color);
+}
+
+.card-header {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+/* 7️⃣ Tables */
+.table {
+    background-color: var(--bg-lighter);
+    border: 1px solid var(--gray-200);
+    color: var(--body-color);
+}
+
+.table th,
+.table td {
+    border: 1px solid var(--gray-200);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--table-striped-bg);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--table-hover-bg);
+}
+
+.table a {
+    color: var(--primary);
+}
+
+.table a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* 8️⃣ Buttons */
+.btn-primary,
+.btn-crud {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.btn-primary:hover,
+.btn-crud:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--gray-600);
+    border-color: var(--gray-600);
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: rgb(70, 75, 85);
+    border-color: rgb(70, 75, 85);
+}
+
+.btn-light {
+    background-color: var(--bg-lighter);
+    border-color: var(--gray-200);
+    color: var(--body-color);
+}
+
+.btn-light:hover {
+    background-color: var(--table-striped-bg);
+}
+
+/* 9️⃣ Form controls */
+.form-control {
+    border: 1px solid var(--gray-200);
+    color: var(--body-color);
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(198, 123, 22, 0.25);
+}
+
+::placeholder {
+    color: var(--gray-600);
+}
+
+/* 10️⃣ Modals */
+.modal-header {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.modal-footer {
+    background-color: var(--table-striped-bg);
+}
+
+/* 11️⃣ Inputs and selects */
+.select2-container--default .select2-selection--single {
+    border: 1px solid var(--gray-200);
+}
+
+.select2-container--default .select2-selection--single:focus,
+.select2-container--default .select2-selection--single:hover {
+    border-color: var(--primary);
+}
+
+/* 12️⃣ Hover highlights */
+.btn:hover,
+.table-hover tbody tr:hover,
+.sidebar .nav-link:hover,
+.card:hover {
+    transition: 0.2s all;
+}
+
+/* 13️⃣ Misc adjustments */
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+}

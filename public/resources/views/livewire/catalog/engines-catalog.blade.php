@@ -24,7 +24,7 @@
 
         <div class="col-md-3">
             <label class="form-label fw-semibold opacity-0">.</label>
-            <button wire:click="applyFilters" class="btn btn-primary w-100">
+            <button wire:click="applyFilters" class="btn btn-brand-primary w-100">
                 Применить
             </button>
         </div>
@@ -36,25 +36,30 @@
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach($engines as $engine)
             <div class="col">
-                <div class="card shadow-sm border-0 small-card">
+                <div class="card shadow-sm border-0 h-100">
 
-                    <img src="/images/placeholder-engine.jpg" class="card-img-top" style="height: 160px; object-fit: cover;"
-                        alt="{{ $engine->title }}">
+                    <!-- Image -->
+                    <div class="ratio ratio-4x3 rounded-top overflow-hidden bg-white">
+                        <img src="{{ $engine->getAllImages()[0] ?? asset('images/placeholder-engine.jpg') }}"
+                            class="img-fluid w-100 h-100" style="object-fit: contain;" alt="{{ $engine->title }}">
+                    </div>
 
-                    <div class="card-body p-3">
-                        <p class="text-muted small m-0">{{ $engine->brand }}</p>
-                        <h6 class="fw-bold mt-1">{{ $engine->title }}</h6>
+                    <!-- Body -->
+                    <div class="card-body p-3 d-flex flex-column">
+                        <p class="text-muted small mb-1">{{ $engine->brand }}</p>
+                        <h6 class="fw-bold">{{ $engine->title }}</h6>
 
-                        <p class="fw-bold mt-2 mb-2">
+                        <p class="fw-bold mt-2 mb-3">
                             {{ number_format($engine->price, 0, ',', ' ') }} ₽
                         </p>
 
-                        <div class="d-flex gap-2">
+                        <div class="mt-auto d-flex gap-2">
                             <a href="{{ route('engine.show', $engine->slug) }}" class="btn btn-outline-primary btn-sm w-50">
                                 Подробнее
                             </a>
 
-                            <button wire:click="openModal({{ $engine->id }})" class="btn bg-font-color btn-sm w-50 text-light">
+                            <button wire:click="openModal({{ $engine->id }})"
+                                class="btn bg-font-color btn-sm w-50 text-light">
                                 Стоимость
                             </button>
                         </div>
@@ -62,10 +67,13 @@
 
                 </div>
             </div>
+
         @endforeach
     </div>
 
-
+    <div class="mt-5 text-left">
+        {{ $engines->links('pagination::bootstrap-5') }}
+    </div>
 
     @if($showModal)
         <div class="modal fade show d-block" tabindex="-1"
