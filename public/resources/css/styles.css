@@ -10,7 +10,7 @@
 
 a.btn.btn-warning.btn-lg.fw-bold,
 .w-100 {
-    background-color: rgb(198, 123, 22) !important;
+    background-color: #c67b16 !important;
     border-color: rgb(198, 123, 22) !important;
     color: black !important;
 }
@@ -47,25 +47,6 @@ button.btn.btn-warning.w-100.fw-bold.text-light {
 
 .btn-brand:hover {
     background: red;
-}
-
-.product-main-img {
-    max-height: 460px;
-    object-fit: contain;
-}
-
-.product-thumb {
-    width: 90px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid #e5e5e5;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.product-thumb:hover {
-    border-color: #1a3a6b;
 }
 
 .specs-table-modern td:first-child {

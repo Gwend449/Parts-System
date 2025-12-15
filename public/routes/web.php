@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\EngineController;
+use App\Http\Controllers\AmoAuthController;
 
 Route::get('/', function () {
     return view('livewire.pages.home');
@@ -26,5 +27,14 @@ Route::get('/contacts', function () {
 
 Route::get('/engine/{slug}', [EngineController::class, 'show'])
     ->name('engine.show');
+
+// amocrm
+
+Route::any('/amocrm/install', [AmoAuthController::class, 'install']);
+Route::any('/amocrm/callback', [AmoAuthController::class, 'callback']);
+
+//test
+Route::get('/amocrm/test-lead', [\App\Http\Controllers\AmoTestController::class, 'test']);
+
 
 require __DIR__ . '/auth.php';

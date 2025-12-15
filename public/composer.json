@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "amocrm/amocrm-api-library": "^1.14",
         "backpack/crud": "^6.8",
         "backpack/medialibrary-uploaders": "^1.2",
         "backpack/theme-tabler": "^1.2",

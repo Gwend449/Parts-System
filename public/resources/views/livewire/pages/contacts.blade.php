@@ -12,25 +12,23 @@
 
                 <div class="mb-5">
                     <h5 class="text-muted small fw-bold text-uppercase mb-2">Адрес</h5>
-                    <p class="fs-5 fw-bold">г. Благовещенск, ул. Советская, д. 123</p>
+                    <p class="fs-5 fw-bold">г. Нижний Новгород, проспект Гагарина, д. 69</p>
                 </div>
 
                 <div class="mb-5">
                     <h5 class="text-muted small fw-bold text-uppercase mb-2">Телефоны</h5>
-                    <p class="fs-5 fw-bold mb-2">+7 (924) 735-47-84</p>
-                    <p class="fs-5 fw-bold mb-2">+7 (914) 703-66-12</p>
-                    <p class="fs-5 fw-bold">+7 (908) 993-66-12</p>
+                    <p class="fs-5 fw-bold mb-2">+7 (910) 121-98-98</p>
+                    <p class="fs-5 fw-bold mb-2">+7 (910) 121-61-31</p>
                 </div>
 
                 <div class="mb-5">
                     <h5 class="text-muted small fw-bold text-uppercase mb-2">Email</h5>
-                    <p class="fs-5 fw-bold">info@amurauto.ru</p>
+                    <p class="fs-5 fw-bold">fasti.s02@mail.ru</p>
                 </div>
 
                 <div>
                     <h5 class="text-muted small fw-bold text-uppercase mb-2">Режим работы</h5>
-                    <p class="text-dark">Пн-Пт: 09:00 - 18:00</p>
-                    <p class="text-dark">Сб-Вс: 10:00 - 16:00</p>
+                    <p class="text-dark">Ежедневно: <br> 09:00 - 21:00</p>
                 </div>
             </div>
 
@@ -41,36 +39,37 @@
                 <form id="contactPageForm" class="space-y-5">
                     <!-- Name -->
                     <div class="mb-4">
-                        <label for="contactName" class="form-label fw-semibold">Ваше имя <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-lg border-2" id="contactName" name="name" placeholder="Иван Иванов" required>
+                        <label for="contactName" class="form-label fw-semibold">Ваше имя <span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg border-2" id="contactName" name="name"
+                            placeholder="Иван Иванов" required>
                     </div>
 
                     <!-- Phone -->
                     <div class="mb-4">
-                        <label for="contactPhone" class="form-label fw-semibold">Телефон <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control form-control-lg border-2" id="contactPhone" name="phone" placeholder="+7 (9XX) XXX-XX-XX" required>
+                        <label for="contactPhone" class="form-label fw-semibold">Телефон <span
+                                class="text-danger">*</span></label>
+                        <input type="tel" class="form-control form-control-lg border-2" id="contactPhone" name="phone"
+                            placeholder="+7 (9XX) XXX-XX-XX" required>
                     </div>
 
                     <!-- Car Model -->
                     <div class="mb-4">
                         <label for="contactCar" class="form-label fw-semibold">Марка автомобиля</label>
-                        <select class="form-select form-select-lg border-2" id="contactCar" name="carModel">
-                            <option value="">Выберите марку...</option>
-                            <option value="toyota">Toyota</option>
-                            <option value="honda">Honda</option>
-                            <option value="bmw">BMW</option>
-                            <option value="audi">Audi</option>
-                            <option value="ford">Ford</option>
-                            <option value="nissan">Nissan</option>
-                            <option value="mazda">Mazda</option>
-                            <option value="volkswagen">Volkswagen</option>
+                        <select class="form-select" wire:model="brand">
+                            <option value="">Все бренды</option>
+                            @foreach(\App\Models\Engine::select('brand')->distinct()->pluck('brand') as $b)
+                                <option value="{{ $b }}">{{ $b }}</option>
+                            @endforeach
                         </select>
                     </div>
 
                     <!-- Message -->
                     <div class="mb-4">
-                        <label for="contactMessage" class="form-label fw-semibold">Комментарий <span class="text-danger">*</span></label>
-                        <textarea class="form-control border-2" id="contactMessage" name="message" rows="5" placeholder="Напишите вашу заявку..." required></textarea>
+                        <label for="contactMessage" class="form-label fw-semibold">Комментарий <span
+                                class="text-danger">*</span></label>
+                        <textarea class="form-control border-2" id="contactMessage" name="message" rows="5"
+                            placeholder="Напишите вашу заявку..." required></textarea>
                     </div>
 
                     <!-- Submit Button -->

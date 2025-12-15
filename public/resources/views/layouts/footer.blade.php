@@ -10,13 +10,14 @@
                     <div
                         class="d-flex flex-column flex-md-row align-items-center align-items-md-start text-center text-md-start">
                         <div class="block me-md-3 mb-3 mb-md-0 mt-1">
-                            <img class="img-thumbnail rounded" style="width: 120px; height: 100; object-fit: cover;"
+                            <img class="img-thumbnail rounded" style="width: 150px; height: 100%; object-fit: cover;"
                                 src="/images/logo.jpg" alt="">
                         </div>
                         <div class="block">
                             <h5 class="text-brand fw-bold mb-2">1749 <span
                                     class="fw-bold fs-5 text-white">АвтоРазбор</span></h5>
-                            <p class="text-light small w-75">Контрактные запчасти на легковые и грузовые авто с гарантией.
+                            <p class="text-light small w-75">Ваш Путеводитель по Миру Качественных Контрактных Запчастей
+                                с 2012 года.
                             </p>
                         </div>
                     </div>
@@ -29,19 +30,28 @@
                         <li class="mb-2"><a href="{{ route('delivery') }}"
                                 class="text-light text-decoration-none hover-text-warning">Оплата и доставка</a></li>
                         <li class="mb-2"><a href="{{ route('about') }}"
-                                class="text-light text-decoration-none hover-text-warning">О нас</a></li>
-                        <li><a href="{{ route('contacts') }}"
+                                class="text-light text-decoration-none hover-text-warning">Каталог</a></li>
+                        <li><a href="{{ route('catalog') }}"
                                 class="text-light text-decoration-none hover-text-warning">Контакты</a></li>
                     </ul>
                 </div>
 
                 <!-- Третья колонка - контакты -->
                 <div class="col">
-                    <h6 class="fw-bold mb-3 text-center text-md-start">Контакты</h6>
+                    <h6 class="fw-bold mb-3 text-brand text-center text-md-start">Контакты</h6>
                     <div class="text-center text-md-start">
-                        <p class="text-light mb-2">+7 (924) 735-47-84</p>
-                        <p class="text-light mb-2">+7 (914) 703-66-12</p>
-                        <p class="text-light">+7 (908) 993-66-12</p>
+                        <div class="row row-cols-md-2 mb-2 align-items-start">
+                            <div class="col">
+                                <p class="text-light mb-2">+7 (910) 121-98-98</p>
+                                <p class="text-light mb-2">+7 (910) 121-61-31</p>
+                            </div>
+                            <div class="col">
+                                <p class="text-light mb-2">fasti.s02@mail.ru</p>
+                                <p class="text-light">Нижний Новгород, проспект Гагарина, д. 69</p>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>

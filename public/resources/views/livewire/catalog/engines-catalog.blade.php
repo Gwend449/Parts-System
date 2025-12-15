@@ -38,11 +38,13 @@
             <div class="col">
                 <div class="card shadow-sm border-0 small-card">
 
-                    @if(count($engine->getAllImages()))
-                        <img src="{{ $engine->getAllImages()[0] }}" class="engine-card-thumb">
-                    @else
-                        <img src="/images/placeholder-engine.jpg" class="engine-card-thumb">
-                    @endif
+                    
+                    <div class="card shadow-sm border-0 small-card">
+                        <div class="engine-card-thumb-wrapper" style="height:200px; overflow:hidden;">
+                            <img src="{{ $engine->getAllImages()[0] ?? '/images/placeholder-engine.jpg' }}"
+                                class="img-fluid" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                    </div>
 
                     <div class="card-body p-3">
                         <p class="text-muted small m-0">{{ $engine->brand }}</p>

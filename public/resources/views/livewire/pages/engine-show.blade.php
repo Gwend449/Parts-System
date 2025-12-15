@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-    <!-- Modern Product Page with Engine PHP Data Integration -->
     <div class="page-container py-5">
 
         <!-- Breadcrumb -->
@@ -21,14 +20,17 @@
                 <div class="border rounded shadow-sm p-3 bg-white">
 
                     <!-- Main image -->
-                    <img id="mainImage" src="{{ $engine->getAllImages()[0] ?? '/images/placeholder-engine.jpg' }}"
-                        class="main-image" />
+                    <div class="ratio ratio-4x3 mb-3 bg-light rounded overflow-hidden">
+                        <img id="mainImage" src="{{ $engine->getAllImages()[0] ?? asset('images/placeholder-engine.jpg') }}"
+                            class="img-fluid w-100 h-100" style="object-fit: contain;" alt="{{ $engine->title }}">
+                    </div>
 
                     <!-- Thumbnails -->
-                    <div class="d-flex gap-3">
+                    <div class="d-flex gap-3 flex-wrap justify-content-start">
                         @foreach($engine->getAllImages() as $img)
-                            <img src="{{ $img }}" class="product-thumb"
-                                onclick="document.getElementById('mainImage').src=this.src" />
+                            <img src="{{ $img }}" class="img-thumbnail"
+                                style="width:90px;height:90px;object-fit:cover;cursor:pointer;"
+                                onclick="document.getElementById('mainImage').src=this.src" alt="">
                         @endforeach
                     </div>
 
