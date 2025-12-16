@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('page_title', 'Главная')
 @section('content')
     <!-- Hero Section -->
     <section class="hero-section bg-dark text-white py-5">

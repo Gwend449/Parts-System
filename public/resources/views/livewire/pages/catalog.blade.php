@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('page_title', 'Каталог')
 @section('content')
     <!-- Breadcrumb -->
     <div class="bg-light py-3 border-bottom border-warning border-3">
@@ -51,7 +51,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Модель авто</label>
-                            
+
                                 <option value="">Выберите марку...</option>
                                 @foreach(\App\Models\Engine::select('brand')->distinct()->pluck('brand') as $b)
                                     <option value="{{ $b }}">{{ $b }}</option>

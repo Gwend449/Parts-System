@@ -41,6 +41,10 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
     background-color: rgb(84, 91, 102);
 }
 
+.bg-font-color:hover {
+    background-color: black
+}
+
 .text-brand {
     color: #1a3a6b;
 }
