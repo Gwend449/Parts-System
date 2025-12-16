@@ -6,8 +6,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EngineController;
 use App\Http\Controllers\AmoAuthController;
 
-Route::get('/', [HomeController::class, 'index'])
-    ->name('home');
+
+
+Route::get('/', function () {
+    return view('livewire.pages.home');
+})->name('home');
 
 Route::get('/catalog', function () {
     return view('livewire.pages.catalog');
