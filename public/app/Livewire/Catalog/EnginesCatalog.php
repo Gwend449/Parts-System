@@ -42,6 +42,19 @@ class EnginesCatalog extends Component
         $this->resetPage(); // пагинация начинается с 1 страницы
     }
 
+    public function resetFilters()
+    {
+        $this->brand = null;
+        $this->price_from = null;
+        $this->price_to = null;
+        $this->filters = [
+            'brand' => null,
+            'price_from' => null,
+            'price_to' => null,
+        ];
+        $this->resetPage('catalog');
+    }
+
     public function openModal($engineId)
     {
         $this->selectedEngine = Engine::find($engineId);

@@ -17,8 +17,8 @@
 
 .btn-brand-primary:hover {
     background-color: #fff;
-    border-color: rgb(220, 65, 0);
-    color: #000;
+    border-color: rgb(198, 123, 22);
+    color: #000 !important;
 }
 
 a.btn.btn-warning.btn-lg.fw-bold {
@@ -33,17 +33,16 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
     color: black !important;
 }
 
-button.btn.btn-warning.w-100.fw-bold.text-light {
-    color: white !important;
-}
-
-
 .text-font-color {
     color: rgb(84, 91, 102);
 }
 
 .bg-font-color {
     background-color: rgb(84, 91, 102);
+}
+
+.bg-font-color:hover {
+    background-color: black
 }
 
 .text-brand {

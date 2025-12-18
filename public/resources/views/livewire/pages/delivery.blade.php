@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('page_title', 'Доставка')
 @section('content')
     <!-- Main Content -->
     <div class="container-lg py-5">
