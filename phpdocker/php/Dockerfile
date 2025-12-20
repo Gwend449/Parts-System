@@ -26,19 +26,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Рабочая директория
 WORKDIR /application
 
-# Копируем только то, что нужно для composer
-COPY public/composer.json public/composer.lock /application/
-
-# Устанавливаем зависимости
-RUN composer install --no-dev --optimize-autoloader
-
-# Копируем весь Laravel проект
+# Копируем весь Laravel проект сразу
 COPY public/ /application
 
 # Создаем папки для Laravel
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
+
+# Устанавливаем зависимости через composer
+RUN composer install --no-dev --optimize-autoloader
 
 # Оптимизация Laravel
 RUN php artisan key:generate --force \
