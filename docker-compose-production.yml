@@ -5,8 +5,9 @@ services:
     image: nginx:alpine
     container_name: nginx
     ports:
-      - "80:80"
+      - "80:80" 
     volumes:
+      - ./public:/application
       - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
@@ -18,7 +19,9 @@ services:
       dockerfile: phpdocker/php/Dockerfile
     container_name: app
     env_file:
-      - .env.production
+      - .env.production # или .env.local
+    volumes:
+      - ./public:/application
     depends_on:
       - db
       - redis
@@ -32,6 +35,8 @@ services:
     command: php artisan queue:work --tries=3 --sleep=3
     env_file:
       - .env.production
+    volumes:
+      - ./public:/application
     depends_on:
       - db
       - redis
