@@ -23,16 +23,18 @@ RUN apt-get update && apt-get install -y \
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Рабочая директория
 WORKDIR /application
 
-# ❗ ВАЖНО: код копируется в образ (для прода)
+# Копируем проект в образ
 COPY . /application
 
-# Права
-RUN chown -R www-data:www-data /application \
+# Создаем нужные папки для Laravel
+RUN mkdir -p storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Оптимизация Laravel
+# Устанавливаем зависимости и оптимизируем Laravel
 RUN composer install --no-dev --optimize-autoloader \
     && php artisan key:generate --force \
     && php artisan config:clear \
