@@ -26,10 +26,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Рабочая директория
 WORKDIR /application
 
-# Копируем весь Laravel проект сразу
+# Копируем весь проект из папки public (где лежит Laravel)
 COPY public/ /application
 
-# Создаем папки для Laravel
+# Права на storage и cache
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
