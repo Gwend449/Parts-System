@@ -12,20 +12,22 @@ services:
     depends_on:
       - app
     restart: always
+    networks:
+      - app-network
 
   app:
     build:
       context: .
       dockerfile: phpdocker/php/Dockerfile
     container_name: app
-    env_file:
-      - .env.production 
     volumes:
       - ./public:/application
     depends_on:
       - db
       - redis
     restart: always
+    networks:
+      - app-network
 
   queue:
     build:
@@ -33,14 +35,14 @@ services:
       dockerfile: phpdocker/php/Dockerfile
     container_name: queue
     command: php artisan queue:work --tries=3 --sleep=3
-    env_file:
-      - .env.production
     volumes:
       - ./public:/application
     depends_on:
       - db
       - redis
     restart: always
+    networks:
+      - app-network
 
   db:
     image: mysql:8.0
@@ -54,11 +56,19 @@ services:
       MYSQL_ROOT_PASSWORD: root
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    networks:
+      - app-network
 
   redis:
     image: redis:alpine
     container_name: redis
     restart: always
+    networks:
+      - app-network
 
 volumes:
   dbfile:
+
+networks:
+  app-network:
+    driver: bridge
