@@ -19,7 +19,7 @@ services:
       dockerfile: phpdocker/php/Dockerfile
     container_name: app
     env_file:
-      - .env.production # или .env.local
+      - .env.production 
     volumes:
       - ./public:/application
     depends_on:

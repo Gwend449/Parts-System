@@ -29,13 +29,13 @@ WORKDIR /application
 # Копируем весь проект из папки public (где лежит Laravel)
 COPY public/ /application
 
+# Устанавливаем зависимости через composer
+RUN composer install --no-dev --optimize-autoloader
+
 # Права на storage и cache
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
-
-# Устанавливаем зависимости через composer
-RUN composer install --no-dev --optimize-autoloader
 
 # Оптимизация Laravel
 RUN php artisan key:generate --force \
