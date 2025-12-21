@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.3-fpm
 
 # Системные зависимости
 RUN apt-get update && apt-get install -y \
@@ -29,9 +29,6 @@ WORKDIR /application
 # Копируем весь проект из папки public (где лежит Laravel)
 COPY public/ /application
 
-# Копируем composer.lock для reproducible builds
-RUN ls -la /application
-
 # Устанавливаем зависимости через composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
@@ -39,15 +36,6 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
-
-# Оптимизация Laravel
-RUN php artisan key:generate --force \
-    && php artisan config:clear \
-    && php artisan route:clear \
-    && php artisan view:clear \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
 
 EXPOSE 9000
 CMD ["php-fpm"]
