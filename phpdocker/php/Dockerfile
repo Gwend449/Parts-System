@@ -29,8 +29,11 @@ WORKDIR /application
 # Копируем весь проект из папки public (где лежит Laravel)
 COPY public/ /application
 
+# Копируем composer.lock для reproducible builds
+RUN ls -la /application
+
 # Устанавливаем зависимости через composer
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Права на storage и cache
 RUN mkdir -p storage bootstrap/cache \
