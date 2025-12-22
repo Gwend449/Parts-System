@@ -4,7 +4,6 @@
 .env
 .env.*
 docker-compose.yml
-docker-compose-production.yml
 .DS_Store
 *.log
 node_modules
