@@ -26,9 +26,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Рабочая директория
 WORKDIR /application
 
-# Копируем весь проект из папки public (где лежит Laravel)
-# ВАЖНО: контекст сборки - корень проекта, поэтому путь относительно корня
-COPY public/ /application
+# Копируем весь Laravel проект (корневую папку где находится composer.json)
+COPY public/ ./
 
 # Очищаем composer cache перед установкой
 RUN composer clear-cache
