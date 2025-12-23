@@ -17,6 +17,8 @@ services:
       context: .
       dockerfile: phpdocker/php/Dockerfile
     container_name: app
+    volumes:
+      - ./.env:/application/.env:ro
     working_dir: /application
     depends_on:
       - db
@@ -31,6 +33,8 @@ services:
       dockerfile: phpdocker/php/Dockerfile
     container_name: queue
     command: php artisan queue:work --tries=3 --sleep=3
+    volumes:
+      - ./.env:/application/.env:ro
     depends_on:
       - app
       - redis
