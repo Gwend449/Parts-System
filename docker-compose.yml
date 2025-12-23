@@ -27,6 +27,9 @@ services:
     networks:
       - app-network
     restart: always
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
 
   queue:
     build:
@@ -40,6 +43,9 @@ services:
     networks:
       - app-network
     restart: always
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
 
   db:
     image: mysql:8.0
