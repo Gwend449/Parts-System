@@ -29,6 +29,9 @@ WORKDIR /application
 # Копируем весь Laravel проект (корневую папку где находится composer.json)
 COPY public/ ./
 
+# Копируем .env файл
+COPY .env ./
+
 # Очищаем composer cache перед установкой
 RUN composer clear-cache
 
@@ -36,9 +39,9 @@ RUN composer clear-cache
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Права на storage и cache
-RUN mkdir -p storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 755 storage bootstrap/cache \
+    && chmod -R 775 storage/logs storage/framework
 
 EXPOSE 9000
 CMD ["php-fpm"]
