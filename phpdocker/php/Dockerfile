@@ -26,11 +26,11 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Рабочая директория
 WORKDIR /application
 
-# Копируем весь Laravel проект (корневую папку где находится composer.json)
+# Копируем весь Laravel проект (находится в папке public)
 COPY public/ ./
 
-# Копируем .env файл
-COPY .env ./
+# Создаем .env из production (если .env.production существует)
+RUN if [ -f .env.production ]; then cp .env.production .env; fi
 
 # Очищаем composer cache перед установкой
 RUN composer clear-cache
@@ -38,7 +38,10 @@ RUN composer clear-cache
 # Устанавливаем зависимости через composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Права на storage и cache
+# Создаем нужные директории если их нет
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
+
+# Права на storage и cache для www-data
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 755 storage bootstrap/cache \
     && chmod -R 775 storage/logs storage/framework
