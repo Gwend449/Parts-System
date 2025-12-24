@@ -29,9 +29,6 @@ WORKDIR /application
 # Копируем весь Laravel проект (находится в папке public)
 COPY public/ ./
 
-# Создаем .env из production (если .env.production существует)
-RUN if [ -f .env.production ]; then cp .env.production .env; fi
-
 # Очищаем composer cache перед установкой
 RUN composer clear-cache
 
