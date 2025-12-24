@@ -20,7 +20,7 @@ services:
     container_name: app
     volumes:
       - app-volume:/application
-      - ./public/.env:/application/.env
+      - ./public/.env:/application/public/.env
     working_dir: /application
     depends_on:
       - db
