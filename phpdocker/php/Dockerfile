@@ -27,7 +27,6 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /application
 
 # Копируем весь Laravel проект (находится в папке public)
-COPY public/ ./
 
 # Очищаем composer cache перед установкой
 RUN composer clear-cache
