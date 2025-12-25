@@ -1,50 +1,50 @@
 FROM php:8.3-fpm
 
+# -------------------------------
 # Системные зависимости
+# -------------------------------
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    zip \
-    unzip \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    && docker-php-ext-install \
-        pdo_mysql \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
+    git curl zip unzip \
+    libpng-dev libonig-dev libxml2-dev libzip-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Установка Redis расширения
-RUN pecl install redis && docker-php-ext-enable redis
-
+# -------------------------------
 # Composer
+# -------------------------------
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# -------------------------------
 # Рабочая директория
+# -------------------------------
 WORKDIR /application
 
-# Копируем весь Laravel проект (находится в папке public)
-COPY public/ ./
+# -------------------------------
+# Копируем весь проект в контейнер
+# -------------------------------
+COPY . .
 
-# Очищаем composer cache перед установкой
-RUN composer clear-cache
+# -------------------------------
+# Composer install
+# -------------------------------
+RUN composer clear-cache \
+    && composer install --no-dev --optimize-autoloader --no-interaction
 
-# Устанавливаем зависимости через composer
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# -------------------------------
+# Создаём директории storage и bootstrap/cache
+# -------------------------------
+RUN mkdir -p storage/logs \
+    && mkdir -p storage/framework/cache \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-# Создаем нужные директории если их нет
-RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
-
-# Права на storage и cache для www-data
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 755 storage bootstrap/cache \
-    && chmod -R 775 storage/logs storage/framework
-
+# -------------------------------
+# Порт и команда запуска
+# -------------------------------
 EXPOSE 9000
 CMD ["php-fpm"]

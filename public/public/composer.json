@@ -1,6 +1,0 @@
-{
-    "require": {
-        "maatwebsite/excel": "^3.1",
-        "redsquirrelstudio/laravel-backpack-import-operation": "^1.6"
-    }
-}
