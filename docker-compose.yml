@@ -29,6 +29,7 @@ services:
     working_dir: /application
     volumes:
       - .:/application
+      - vendor:/application/vendor
       - ./storage:/application/storage:rw
       - ./bootstrap/cache:/application/bootstrap/cache:rw
     depends_on:
@@ -63,6 +64,7 @@ services:
     working_dir: /application
     volumes:
       - .:/application
+      - vendor:/application/vendor
       - ./storage:/application/storage:rw
       - ./bootstrap/cache:/application/bootstrap/cache:rw
     depends_on:
@@ -132,6 +134,7 @@ services:
 volumes:
   dbfile:
   redisfile:
+  vendor:
 
 networks:
   app-network:
