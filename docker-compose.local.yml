@@ -23,6 +23,7 @@ services:
     volumes:
       - ./:/application # весь проект
       - vendor_local:/application/vendor
+      - bootstrap_cache_local:/application/bootstrap/cache
       - ./phpdocker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
     depends_on:
       - mysql
@@ -56,3 +57,4 @@ services:
 volumes:
   dbfile_local:
   vendor_local:
+  bootstrap_cache_local:

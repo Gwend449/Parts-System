@@ -30,8 +30,8 @@ services:
     volumes:
       - .:/application
       - vendor:/application/vendor
+      - bootstrap_cache:/application/bootstrap/cache
       - ./storage:/application/storage:rw
-      - ./bootstrap/cache:/application/bootstrap/cache:rw
     depends_on:
       - db
       - redis
@@ -65,8 +65,8 @@ services:
     volumes:
       - .:/application
       - vendor:/application/vendor
+      - bootstrap_cache:/application/bootstrap/cache
       - ./storage:/application/storage:rw
-      - ./bootstrap/cache:/application/bootstrap/cache:rw
     depends_on:
       - app
       - redis
@@ -135,6 +135,7 @@ volumes:
   dbfile:
   redisfile:
   vendor:
+  bootstrap_cache:
 
 networks:
   app-network:
