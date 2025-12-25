@@ -5,6 +5,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "5173:5173"
     volumes:
       - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./phpdocker/nginx/ssl:/etc/nginx/ssl:ro
@@ -43,6 +44,8 @@ services:
       - REDIS_HOST=redis
       - APP_ENV=production
       - APP_DEBUG=false
+      - APP_URL=http://91.229.11.188
+      - VITE_HMR_HOST=91.229.11.188
     logging:
       driver: "json-file"
       options:
