@@ -27,13 +27,7 @@ WORKDIR /application
 COPY . .
 
 # -------------------------------
-# Composer install
-# -------------------------------
-RUN composer clear-cache \
-    && composer install --no-dev --optimize-autoloader --no-interaction
-
-# -------------------------------
-# Создаём директории storage и bootstrap/cache
+# Создаём директории storage и bootstrap/cache ДО composer install
 # -------------------------------
 RUN mkdir -p storage/logs \
     && mkdir -p storage/framework/cache \
@@ -42,6 +36,12 @@ RUN mkdir -p storage/logs \
     && mkdir -p bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
+
+# -------------------------------
+# Composer install
+# -------------------------------
+RUN composer clear-cache \
+    && composer install --no-dev --optimize-autoloader --no-interaction
 
 # -------------------------------
 # Порт и команда запуска
