@@ -39,18 +39,6 @@ services:
     networks:
       - app-network
     restart: always
-    environment:
-      - DB_HOST=db
-      - REDIS_HOST=redis
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_URL=http://91.229.11.188
-      - VITE_HMR_HOST=91.229.11.188
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     
 
   queue:
