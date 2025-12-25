@@ -43,8 +43,13 @@ RUN mkdir -p storage/logs \
 RUN composer clear-cache \
     && composer install --no-dev --optimize-autoloader --no-interaction
 
+# Copy entrypoint script
+COPY phpdocker/php/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # -------------------------------
 # Порт и команда запуска
 # -------------------------------
 EXPOSE 9000
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["php-fpm"]
