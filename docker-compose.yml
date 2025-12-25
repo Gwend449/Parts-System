@@ -18,7 +18,7 @@ services:
       dockerfile: phpdocker/php/Dockerfile
     container_name: app
     volumes:
-      - ./public/.env:/application/public/.env
+      - /.env:/application/.env
     working_dir: /application
     depends_on:
       - db
