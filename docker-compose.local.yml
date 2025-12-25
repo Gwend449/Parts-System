@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   mysql:
@@ -21,7 +21,8 @@ services:
     container_name: php_local
     working_dir: /application
     volumes:
-      - ./:/application        # весь проект
+      - ./:/application # весь проект
+      - vendor_local:/application/vendor
       - ./phpdocker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
     depends_on:
       - mysql
@@ -54,3 +55,4 @@ services:
 
 volumes:
   dbfile_local:
+  vendor_local:
