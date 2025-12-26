@@ -11,6 +11,7 @@ services:
       - ./phpdocker/nginx/ssl:/etc/nginx/ssl:ro
       - ./public:/application/public:ro
       - ./storage/logs:/var/log/nginx:rw
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - app
     networks:
