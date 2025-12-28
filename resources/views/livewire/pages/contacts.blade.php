@@ -36,6 +36,12 @@
             <div class="col-lg-6">
                 <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom border-warning border-3">Форма обратной связи</h2>
 
+                <!-- Alert для сообщений -->
+                <div id="formAlert" class="alert alert-dismissible fade" role="alert" style="display: none;">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div id="formAlertMessage"></div>
+                </div>
+
                 <form id="contactPageForm" class="space-y-5">
                     <!-- Name -->
                     <div class="mb-4">
@@ -43,6 +49,7 @@
                                 class="text-danger">*</span></label>
                         <input type="text" class="form-control form-control-lg border-2" id="contactName" name="name"
                             placeholder="Иван Иванов" required>
+                        <small class="text-danger" style="display: none;" id="nameError"></small>
                     </div>
 
                     <!-- Phone -->
@@ -51,13 +58,14 @@
                                 class="text-danger">*</span></label>
                         <input type="tel" class="form-control form-control-lg border-2" id="contactPhone" name="phone"
                             placeholder="+7 (9XX) XXX-XX-XX" required>
+                        <small class="text-danger" style="display: none;" id="phoneError"></small>
                     </div>
 
                     <!-- Car Model -->
                     <div class="mb-4">
                         <label for="contactCar" class="form-label fw-semibold">Марка автомобиля</label>
-                        <select class="form-select" wire:model="brand">
-                            <option value="">Все бренды</option>
+                        <select class="form-select" id="contactBrand" name="brand">
+                            <option value="">Выберите марку...</option>
                             @foreach(\App\Models\Engine::select('brand')->distinct()->pluck('brand') as $b)
                                 <option value="{{ $b }}">{{ $b }}</option>
                             @endforeach
@@ -70,10 +78,13 @@
                                 class="text-danger">*</span></label>
                         <textarea class="form-control border-2" id="contactMessage" name="message" rows="5"
                             placeholder="Напишите вашу заявку..." required></textarea>
+                        <small class="text-danger" style="display: none;" id="messageError"></small>
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold py-2">Отправить сообщение</button>
+                    <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold py-2" id="contactSubmitBtn">
+                        Отправить сообщение
+                    </button>
                 </form>
             </div>
         </div>
@@ -86,4 +97,84 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('contactPageForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const form = this;
+            const submitBtn = document.getElementById('contactSubmitBtn');
+            const alert = document.getElementById('formAlert');
+            const alertMessage = document.getElementById('formAlertMessage');
+
+            // Очищаем предыдущие ошибки
+            document.querySelectorAll('small[id$="Error"]').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            alert.style.display = 'none';
+
+            // Собираем данные формы
+            const formData = new FormData(form);
+            const data = {
+                name: formData.get('name'),
+                phone: formData.get('phone'),
+                brand: formData.get('brand'),
+                message: formData.get('message')
+            };
+
+            // Отправляем на сервер
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Отправка...';
+
+            try {
+                const response = await fetch('{{ route("api.contact-form") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Успешно отправлено
+                    alert.className = 'alert alert-success alert-dismissible fade show';
+                    alertMessage.textContent = result.message;
+                    alert.style.display = 'block';
+
+                    // Очищаем форму
+                    form.reset();
+                } else {
+                    // Ошибка валидации
+                    alert.className = 'alert alert-danger alert-dismissible fade show';
+
+                    if (result.errors) {
+                        // Выводим ошибки валидации
+                        Object.keys(result.errors).forEach(field => {
+                            const errorElement = document.getElementById(field + 'Error');
+                            if (errorElement) {
+                                errorElement.textContent = result.errors[field][0];
+                                errorElement.style.display = 'block';
+                            }
+                        });
+                        alertMessage.textContent = 'Пожалуйста, исправьте ошибки в форме';
+                    } else {
+                        alertMessage.textContent = result.message || 'Произошла ошибка при отправке формы';
+                    }
+                    alert.style.display = 'block';
+                }
+            } catch (error) 
+                console.error('Ошибка:', error);
+                alert.className = 'alert alert-danger alert-dismissible fade show';
+                alertMessage.textContent = 'Произошла ошибка при отправке. Попробуйте позже.';
+                alert.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Отправить сообщение';
+            }
+        });
+    </script>
 @endsection

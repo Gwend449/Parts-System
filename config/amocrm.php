@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'client_id' => env('AMOCRM_CLIENT_ID'),
-    'client_secret' => env('AMOCRM_CLIENT_SECRET'),
-    'redirect_uri' => env('AMOCRM_REDIRECT_URI'),
-    'subdomain' => env('AMOCRM_SUBDOMAIN'),
+    'subdomain'     => env('AMOCRM_SUBDOMAIN'),
+    'private_token' => env('AMOCRM_PRIVATE_TOKEN'),
 ];
