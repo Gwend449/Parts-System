@@ -10,10 +10,11 @@ class AmoAuthController extends Controller
 {
     public function install()
     {
-        $url = 'https://' . config('amocrm.subdomain') . '.amocrm.ru/oauth?' . http_build_query([
+        $url = 'https://' . config('amocrm.subdomain') . '.amocrm.ru/oauth2/authorize?' . http_build_query([
             'client_id' => config('amocrm.client_id'),
-            'mode' => 'post',
             'redirect_uri' => config('amocrm.redirect_uri'),
+            'response_type' => 'code',
+            'state' => csrf_token(),
         ]);
 
         return redirect($url);
