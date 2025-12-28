@@ -32,15 +32,42 @@ class AmoService
             throw new \Exception('amoCRM не подключена');
         }
 
+        // Проверить, не истек ли токен
+        if ($token->expires_at->isPast()) {
+            $this->refreshToken($token);
+            $token->refresh();
+        }
+
         $accessToken = new AccessToken([
-            'access_token'  => $token->access_token,
+            'access_token' => $token->access_token,
             'refresh_token' => $token->refresh_token,
-            'expires'       => $token->expires_at->timestamp,
+            'expires' => $token->expires_at->timestamp,
         ]);
 
         $this->client
             ->setAccessToken($accessToken)
             ->setAccountBaseDomain($token->domain);
+    }
+
+    /**
+     * Обновить токен доступа (refresh token)
+     */
+    protected function refreshToken(AmocrmToken $token): void
+    {
+        try {
+            $accessToken = $this->client
+                ->getOAuthClient()
+                ->getAccessTokenByRefreshToken($token->refresh_token);
+
+            $token->update([
+                'access_token' => $accessToken->getToken(),
+                'refresh_token' => $accessToken->getRefreshToken(),
+                'expires_at' => now()->addSeconds($accessToken->getExpires()),
+                'raw' => $accessToken->jsonSerialize(),
+            ]);
+        } catch (\Exception $e) {
+            throw new \Exception('Не удалось обновить токен: ' . $e->getMessage());
+        }
     }
 
     /**
