@@ -58,7 +58,7 @@
 
             <hr class="bg-secondary">
             <div class="text-center text-light">
-                <p>&copy; 2025 АвтоРазбор <span class="text-brand">1749</span>. Все права защищены.</p>
+                <p>&copy; 2025 АвтоРазбор <span class="tex  bt-brand">1749</span>. Все права защищены.</p>
             </div>
         </div>
 </footer>
