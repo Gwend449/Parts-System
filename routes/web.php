@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\EngineController;
 use App\Http\Controllers\AmoAuthController;
+use App\Http\Controllers\FormSubmissionController;
 
 
 
@@ -31,14 +32,17 @@ Route::get('/contacts', function () {
 Route::get('/engine/{slug}', [EngineController::class, 'show'])
     ->name('engine.show');
 
-// amocrm
+// amocrm - приватная интеграция
 Route::group(['prefix' => 'amocrm'], function () {
     Route::get('/install', [AmoAuthController::class, 'install'])->name('amocrm.install');
-    Route::get('/callback', [AmoAuthController::class, 'callback'])->name('amocrm.callback');
 });
 
-//test
-Route::get('/amocrm/test-lead', [\App\Http\Controllers\AmoTestController::class, 'test']);
+// Обработка форм
+Route::group(['prefix' => 'api', 'middleware' => ['api']], function () {
+    Route::post('/contact-form', [FormSubmissionController::class, 'submitContactForm'])->name('api.contact-form');
+    Route::post('/catalog-form', [FormSubmissionController::class, 'submitCatalogForm'])->name('api.catalog-form');
+});
 
+Route::get('/amocrm/test', [AmoAuthController::class, 'install']);
 
 require __DIR__ . '/auth.php';
