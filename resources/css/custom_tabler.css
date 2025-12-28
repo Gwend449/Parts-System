@@ -17,6 +17,17 @@
     --table-striped-bg: rgb(255, 243, 220);
 }
 
+/* Переменные для тёмной темы */
+[data-bs-theme="dark"] {
+    --body-color: rgb(255, 255, 255);
+    --gray-600: rgb(180, 180, 180);
+    --gray-200: rgb(50, 50, 50);
+    --bg-light: rgb(30, 30, 30);
+    --bg-lighter: rgb(40, 40, 40);
+    --table-hover-bg: rgb(60, 60, 60);
+    --table-striped-bg: rgb(50, 50, 50);
+}
+
 /* 2️⃣ Body */
 body {
     background-color: var(--bg-light);

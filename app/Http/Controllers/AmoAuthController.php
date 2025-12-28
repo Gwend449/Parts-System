@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use AmoCRM\Client\AmoCRMApiClient;
-use App\Models\AmoToken;
-use Illuminate\Support\Str;
 
 
 class AmoAuthController extends Controller
@@ -23,46 +21,57 @@ class AmoAuthController extends Controller
 
 
 
-    // public function callback(Request $request)
-    // {
-    //     $code = $request->get('code');
-
-    //     if (!$code) {
-    //         return redirect('/')->with('error', 'Нет кода авторизации');
-    //     }
-
-    //     $client = new AmoCRMApiClient(
-    //         config('amocrm.client_id'),
-    //         config('amocrm.client_secret'),
-    //         config('amocrm.redirect_uri')
-    //     );
-
-    //     $accessToken = $client
-    //         ->getOAuthClient()
-    //         ->getAccessTokenByCode($code);
-
-    //     $baseDomain = $accessToken->getValues()['baseDomain'];
-
-    //     \App\Models\AmocrmToken::updateOrCreate(
-    //         ['domain' => $baseDomain],
-    //         [
-    //             'access_token' => $accessToken->getToken(),
-    //             'refresh_token' => $accessToken->getRefreshToken(),
-    //             'expires_at' => now()->addSeconds($accessToken->getExpires()),
-    //             'raw' => $accessToken->jsonSerialize(),
-    //         ]
-    //     );
-
-    //     return redirect('/')->with('success', 'amoCRM подключена');
-    // }
-
     public function callback(Request $request)
     {
-        dd([
-            'all' => $request->all(),
-            'code' => $request->get('code'),
-            'state' => $request->get('state'),
-            'url' => $request->fullUrl(),
-        ]);
+        try {
+            $code = $request->get('code');
+            $state = $request->get('state');
+            $error = $request->get('error');
+
+            // Проверка на ошибки авторизации от AmoCRM
+            if ($error) {
+                return redirect('/')->with('error', 'Ошибка амоCRM: ' . $error);
+            }
+
+            if (!$code) {
+                return redirect('/')->with('error', 'Нет кода авторизации');
+            }
+
+            // Создаем клиент для получения токена
+            $client = new AmoCRMApiClient(
+                config('amocrm.client_id'),
+                config('amocrm.client_secret'),
+                config('amocrm.redirect_uri')
+            );
+
+            // Получаем токен по коду
+            $accessToken = $client
+                ->getOAuthClient()
+                ->getAccessTokenByCode($code);
+
+            // Извлекаем данные из токена
+            $tokenData = $accessToken->getValues();
+            $baseDomain = $tokenData['baseDomain'];
+
+            // Сохраняем токен в БД
+            \App\Models\AmocrmToken::updateOrCreate(
+                ['domain' => $baseDomain],
+                [
+                    'access_token' => $accessToken->getToken(),
+                    'refresh_token' => $accessToken->getRefreshToken(),
+                    'expires_at' => now()->addSeconds($accessToken->getExpires()),
+                    'raw' => $accessToken->jsonSerialize(),
+                ]
+            );
+
+            return redirect('/')->with('success', 'amoCRM успешно подключена!');
+        } catch (\Exception $e) {
+            \Log::error('AmoCRM auth error: ' . $e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect('/')->with('error', 'Ошибка при подключении amoCRM: ' . $e->getMessage());
+        }
     }
 }
