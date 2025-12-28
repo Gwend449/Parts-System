@@ -33,8 +33,8 @@ Route::get('/engine/{slug}', [EngineController::class, 'show'])
 
 // amocrm
 Route::group(['prefix' => 'amocrm'], function () {
-    Route::any('/install', [AmoAuthController::class, 'install'])->name('amocrm.install');
-    Route::any('/callback', [AmoAuthController::class, 'callback'])->name('amocrm.callback');
+    Route::get('/install', [AmoAuthController::class, 'install'])->name('amocrm.install');
+    Route::get('/callback', [AmoAuthController::class, 'callback'])->name('amocrm.callback');
 });
 
 //test
