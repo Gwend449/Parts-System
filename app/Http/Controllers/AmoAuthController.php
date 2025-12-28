@@ -19,8 +19,6 @@ class AmoAuthController extends Controller
         return redirect($url);
     }
 
-
-
     public function callback(Request $request)
     {
         try {
