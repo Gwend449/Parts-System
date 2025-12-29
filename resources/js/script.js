@@ -44,5 +44,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initMobileMenu()
   initSmoothScroll()
 
-  console.log("[w210 070")
+  console.log("w210 070")
 })
