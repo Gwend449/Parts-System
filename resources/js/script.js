@@ -41,9 +41,8 @@ function initSmoothScroll() {
 
 // Initialize all functionality
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("[v0] Initializing MotorFinder application (Pure HTML/CSS/JS)")
   initMobileMenu()
   initSmoothScroll()
 
-  console.log("[v0] Application initialized successfully")
+  console.log("[w210 070")
 })
