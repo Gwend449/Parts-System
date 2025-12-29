@@ -166,7 +166,7 @@
                     }
                     alert.style.display = 'block';
                 }
-            } catch (error) 
+            } catch (error) {
                 console.error('Ошибка:', error);
                 alert.className = 'alert alert-danger alert-dismissible fade show';
                 alertMessage.textContent = 'Произошла ошибка при отправке. Попробуйте позже.';

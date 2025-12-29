@@ -51,7 +51,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Модель авто</label>
-
+                            <select class="form-select" wire:model="brand">
                                 <option value="">Выберите марку...</option>
                                 @foreach(\App\Models\Engine::select('brand')->distinct()->pluck('brand') as $b)
                                     <option value="{{ $b }}">{{ $b }}</option>
