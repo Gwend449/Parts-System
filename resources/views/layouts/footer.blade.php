@@ -29,9 +29,9 @@
                     <ul class="list-unstyled text-center text-md-start">
                         <li class="mb-2"><a href="{{ route('delivery') }}"
                                 class="text-light text-decoration-none hover-text-warning">Оплата и доставка</a></li>
-                        <li class="mb-2"><a href="{{ route('about') }}"
+                        <li class="mb-2"><a href="{{ route('catalog') }}"
                                 class="text-light text-decoration-none hover-text-warning">Каталог</a></li>
-                        <li><a href="{{ route('catalog') }}"
+                        <li><a href="{{ route('contacts') }}"
                                 class="text-light text-decoration-none hover-text-warning">Контакты</a></li>
                     </ul>
                 </div>
