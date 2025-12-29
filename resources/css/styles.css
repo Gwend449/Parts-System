@@ -94,7 +94,10 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
     z-index: 9999;
     width: auto;
     max-width: 960px;
+
+
     padding: 0.5rem;
+    height: auto;
     pointer-events: none; /* позволяет клики по внутренним элементам */
 }
 

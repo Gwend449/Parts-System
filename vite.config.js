@@ -17,3 +17,5 @@ export default defineConfig({
         },
     },
 });
+// host: process.env.VITE_HMR_HOST || 'localhost',
+//             port: process.env.VITE_HMR_PORT || 5173,
