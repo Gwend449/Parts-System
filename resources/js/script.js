@@ -41,12 +41,7 @@ function initSmoothScroll() {
 
 // Initialize all functionality
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("w210 070")
-
-  renderEngines()
-  renderBrands()
-  initSearchButton()
-  initBrandSelector()
+  console.log("[v0] Initializing MotorFinder application (Pure HTML/CSS/JS)")
   initMobileMenu()
   initSmoothScroll()
 
