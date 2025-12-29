@@ -22,9 +22,6 @@ class EnginesCatalog extends Component
         'filters.brand' => ['as' => 'brand'],
     ];
 
-    public $selectedEngine = null;
-    public $showModal = false;
-
     public function mount()
     {
         if (request()->has('brand')) {
@@ -55,16 +52,6 @@ class EnginesCatalog extends Component
         $this->resetPage('catalog');
     }
 
-    public function openModal($engineId)
-    {
-        $this->selectedEngine = Engine::find($engineId);
-        $this->showModal = true;
-    }
-
-    public function closeModal()
-    {
-        $this->showModal = false;
-    }
 
     public function render()
     {

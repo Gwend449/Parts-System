@@ -82,7 +82,7 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold py-2" id="contactSubmitBtn">
+                    <button type="submit" class="btn btn-brand-primary btn-lg w-100 fw-bold py-2" id="contactSubmitBtn">
                         Отправить сообщение
                     </button>
                 </form>
@@ -93,7 +93,10 @@
         <div class="mb-5">
             <h2 class="fs-4 fw-bold mb-4">Найдите нас на карте</h2>
             <div class="ratio ratio-16x9 rounded overflow-hidden border border-2 border-gray-300">
-                <img src="public/map-location.png" alt="Map" class="img-fluid">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2216.906043614466!2d43.9639552!3d56.2451337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x414e2ac71a5c7d19%3A0xa113354dc7c1b175!2z0L_RgNC-0YHQvy4g0JPQsNCz0LDRgNC40L3QsCwgNjksINCd0LjQttC90LjQuSDQndC-0LLQs9C-0YDQvtC0LCDQndC40LbQtdCz0L7RgNC-0LTRgdC60LDRjyDQvtCx0LsuLCA2MDMxMDc!5e0!3m2!1sru!2sru!4v1767024391716!5m2!1sru!2sru"
+                    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
     </div>
