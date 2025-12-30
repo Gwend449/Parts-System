@@ -161,6 +161,10 @@ class EnginesCrudController extends CrudController
             $deleted = $engine->deleteMedia($mediaId);
 
             if ($deleted) {
+                // Очищаем кэш изображений после удаления
+                $cacheKey = 'engine_images_' . $engineId;
+                \Illuminate\Support\Facades\Cache::forget($cacheKey);
+                
                 return response()->json(['success' => true, 'message' => 'Фотография удалена']);
             }
 
@@ -178,10 +182,35 @@ class EnginesCrudController extends CrudController
     {
         $engineId = $request->get('engine_id');
 
+        \Log::info('getMediaList request', [
+            'engine_id' => $engineId,
+            'user_id' => backpack_user()->id ?? null,
+            'url' => $request->fullUrl()
+        ]);
+
+        if (!$engineId) {
+            \Log::warning('getMediaList: engine_id is missing');
+            return response()->json(['error' => 'engine_id is required'], 400);
+        }
+
         try {
             $engine = \App\Models\Engine::findOrFail($engineId);
-            return response()->json(['media' => $engine->getMediaList()]);
+            $mediaList = $engine->getMediaList();
+            
+            \Log::info('getMediaList success', [
+                'engine_id' => $engineId,
+                'media_count' => count($mediaList)
+            ]);
+            
+            return response()->json(['media' => $mediaList]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('getMediaList: Engine not found', ['engine_id' => $engineId]);
+            return response()->json(['error' => 'Engine not found'], 404);
         } catch (\Exception $e) {
+            \Log::error('getMediaList error: ' . $e->getMessage(), [
+                'engine_id' => $engineId,
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }

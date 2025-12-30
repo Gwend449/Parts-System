@@ -4,9 +4,24 @@
    $field['wrapper']['data-field-name'] = $field['wrapper']['data-field-name'] ?? $field['name'];
 
    // Получаем текущие изображения из MediaLibrary
+   // Используем getCurrentEntry() для получения текущей записи при обновлении
    $existingMedia = [];
-   if ($crud->getModel() && method_exists($crud->getModel(), 'getMedia')) {
-      $existingMedia = $crud->getModel()->getMedia('images');
+   $engineId = null;
+   
+   try {
+      $entryId = $crud->getCurrentEntryId();
+      
+      if ($entryId !== false) {
+         $entry = $crud->getEntry($entryId);
+         
+         if ($entry && $entry->exists && method_exists($entry, 'getMedia')) {
+            $existingMedia = $entry->getMedia('images');
+            $engineId = $entry->id;
+         }
+      }
+   } catch (\Exception $e) {
+      \Log::error('Error getting media in engine_media_gallery: ' . $e->getMessage());
+      $existingMedia = [];
    }
 @endphp
 
@@ -21,7 +36,7 @@
       <div class="row" id="media-items">
          @foreach($existingMedia as $media)
             <div class="col-md-3 col-sm-4 col-xs-6 mb-2 media-item" data-media-id="{{ $media->id }}"
-               data-engine-id="{{ $crud->getModel()->id }}">
+               data-engine-id="{{ $engineId }}">
                <div class="position-relative">
                   <img src="{{ $media->getUrl('thumb') }}" alt="{{ $media->name }}" class="img-thumbnail img-fluid"
                      style="max-height: 150px; width: 100%; object-fit: cover;">
@@ -44,9 +59,8 @@
 {{-- Форма загрузки новых изображений --}}
 <div class="form-group">
    <label class="form-label mb-2">Добавить новые изображения</label>
-   <input name="{{ $field['name'] }}[]" type="hidden" value="">
    <div class="backstrap-file">
-      <input type="file" name="{{ $field['name'] }}[]" @include('crud::fields.inc.attributes', ['default_class' => 'file_input backstrap-file-input']) multiple accept="image/*">
+      <input type="file" name="{{ $field['name'] }}[]" @include('crud::fields.inc.attributes', ['default_class' => 'file_input backstrap-file-input']) multiple accept="image/jpeg,image/png,image/webp">
       <label class="backstrap-file-label" for="customFile"></label>
    </div>
 </div>
@@ -165,6 +179,109 @@
          var mediaItems = element.find('#media-items');
          var noImagesMsg = element.find('#no-images-msg');
          var mediaGallery = element.find('#media-gallery');
+         var engineId = null;
+         
+         // Получаем engine_id из первого элемента или из скрытого поля формы
+         var firstMediaItem = mediaItems.find('.media-item').first();
+         if (firstMediaItem.length) {
+            engineId = firstMediaItem.data('engine-id');
+         } else {
+            // Пытаемся получить из скрытого поля id формы
+            var formIdInput = $('form input[name="id"]');
+            if (formIdInput.length) {
+               engineId = formIdInput.val();
+            }
+         }
+
+         // Функция для обновления списка изображений
+         function refreshMediaList() {
+            if (!engineId) {
+               // Пытаемся получить engine_id из формы
+               var formIdInput = $('form input[name="id"]');
+               if (formIdInput.length && formIdInput.val()) {
+                  engineId = formIdInput.val();
+               } else {
+                  console.log('EngineMediaGallery: No engine ID found, skipping refresh');
+                  return; // Нет ID, значит это создание новой записи
+               }
+            }
+
+            console.log('EngineMediaGallery: Refreshing media list for engine ID:', engineId);
+
+            $.ajax({
+               url: '{{ route("admin.engine.media-list") }}',
+               type: 'GET',
+               data: {
+                  engine_id: engineId
+               },
+               success: function (response) {
+                  console.log('EngineMediaGallery: Received media list:', response);
+                  
+                  if (response.media && response.media.length > 0) {
+                     // Очищаем текущий список
+                     mediaItems.empty();
+                     
+                     // Добавляем новые изображения
+                     response.media.forEach(function(media) {
+                        var deleteButton = '';
+                        // Показываем кнопку удаления только для изображений из MediaLibrary
+                        if (media.id && media.type !== 'folder') {
+                           deleteButton = '<button type="button" class="btn btn-sm btn-danger delete-media-btn position-absolute top-0 end-0 m-1" title="Удалить изображение">' +
+                              '<i class="la la-trash"></i>' +
+                              '</button>';
+                        } else {
+                           // Для изображений из папки показываем подсказку
+                           deleteButton = '<span class="badge bg-info position-absolute top-0 end-0 m-1" title="Изображение из папки, удалите вручную">Папка</span>';
+                        }
+                        
+                        var mediaItem = $('<div>')
+                           .addClass('col-md-3 col-sm-4 col-xs-6 mb-2 media-item')
+                           .attr('data-media-id', media.id || '')
+                           .attr('data-engine-id', engineId)
+                           .attr('data-media-type', media.type || 'uploaded')
+                           .html(
+                              '<div class="position-relative">' +
+                                 '<img src="' + media.thumb + '" alt="' + media.name + '" class="img-thumbnail img-fluid" style="max-height: 150px; width: 100%; object-fit: cover;">' +
+                                 deleteButton +
+                              '</div>' +
+                              '<small class="text-muted d-block text-truncate mt-1">' + media.name + '</small>'
+                           );
+                        mediaItems.append(mediaItem);
+                     });
+                     
+                     // Показываем галерею и скрываем сообщение
+                     if (!mediaGallery.length) {
+                        // Создаем галерею если её нет
+                        var galleryHtml = '<div class="well well-sm existing-file mb-3" id="media-gallery">' +
+                           '<div class="row" id="media-items"></div>' +
+                           '</div>';
+                        element.find('label').after(galleryHtml);
+                        mediaGallery = element.find('#media-gallery');
+                        mediaItems = element.find('#media-items');
+                     }
+                     
+                     mediaGallery.show();
+                     noImagesMsg.hide();
+                     
+                     console.log('EngineMediaGallery: Displayed ' + response.media.length + ' image(s)');
+                  } else {
+                     // Нет изображений
+                     mediaItems.empty();
+                     if (mediaGallery.length) {
+                        mediaGallery.hide();
+                     }
+                     noImagesMsg.show();
+                     console.log('EngineMediaGallery: No images found');
+                  }
+               },
+               error: function (xhr) {
+                  console.error('EngineMediaGallery: Error loading media list:', xhr);
+                  if (xhr.responseJSON && xhr.responseJSON.error) {
+                     console.error('EngineMediaGallery: Error message:', xhr.responseJSON.error);
+                  }
+               }
+            });
+         }
 
          // Обработчик удаления существующего изображения
          element.on('click', '.delete-media-btn', function (e) {
@@ -172,8 +289,20 @@
 
             var mediaItem = $(this).closest('.media-item');
             var mediaId = mediaItem.data('media-id');
+            var mediaType = mediaItem.data('media-type');
             var engineId = mediaItem.data('engine-id');
             var btn = $(this);
+
+            // Не удаляем изображения из папки
+            if (!mediaId || mediaType === 'folder') {
+               alert('Это изображение из папки. Удалите его вручную из папки public/images/engines/');
+               return;
+            }
+
+            // Подтверждение удаления
+            if (!confirm('Вы уверены, что хотите удалить это изображение?')) {
+               return;
+            }
 
             // Показываем spinner
             btn.prop('disabled', true);
@@ -189,20 +318,30 @@
                   _token: $('meta[name="csrf-token"]').attr('content')
                },
                success: function (response) {
-                  // Удаляем элемент из DOM с анимацией
-                  mediaItem.fadeOut(300, function () {
-                     $(this).remove();
+                  if (response.success) {
+                     // Удаляем элемент из DOM с анимацией
+                     mediaItem.fadeOut(300, function () {
+                        $(this).remove();
 
-                     // Если нет больше элементов, показываем сообщение
-                     if (mediaItems.find('.media-item').length === 0) {
-                        mediaGallery.hide();
-                        noImagesMsg.show();
-                     }
-                  });
+                        // Если нет больше элементов, показываем сообщение
+                        if (mediaItems.find('.media-item').length === 0) {
+                           mediaGallery.hide();
+                           noImagesMsg.show();
+                        }
+                     });
+                  } else {
+                     alert(response.message || 'Ошибка при удалении изображения');
+                     btn.prop('disabled', false);
+                     btn.html('<i class="la la-trash"></i>');
+                  }
                },
-               error: function (error) {
-                  console.error('Error deleting media:', error);
-                  alert('Ошибка при удалении изображения');
+               error: function (xhr) {
+                  console.error('Error deleting media:', xhr);
+                  var errorMessage = 'Ошибка при удалении изображения';
+                  if (xhr.responseJSON && xhr.responseJSON.error) {
+                     errorMessage = xhr.responseJSON.error;
+                  }
+                  alert(errorMessage);
                   btn.prop('disabled', false);
                   btn.html('<i class="la la-trash"></i>');
                }
@@ -216,9 +355,6 @@
             Array.from($(this)[0].files).forEach(file => {
                selectedFiles.push({ name: file.name, type: file.type })
             });
-
-            // Сохраняем данные о выбранных файлах
-            element.find('input').first().val(JSON.stringify(selectedFiles)).trigger('change');
 
             // Обновляем label с информацией о выбранных файлах
             let files = '';
@@ -235,6 +371,91 @@
          if (mediaItems.find('.media-item').length > 0) {
             noImagesMsg.hide();
          }
+
+         // Обновляем список изображений при загрузке страницы
+         // Это гарантирует, что после редиректа после сохранения изображения будут отображены
+         function initMediaRefresh() {
+            var formIdInput = $('form input[name="id"]');
+            if (formIdInput.length && formIdInput.val()) {
+               var currentEngineId = formIdInput.val();
+               
+               // Обновляем engineId если он изменился
+               if (currentEngineId !== engineId) {
+                  engineId = currentEngineId;
+               }
+               
+               // Обновляем список изображений через небольшую задержку
+               // чтобы дать время странице полностью загрузиться
+               setTimeout(function() {
+                  refreshMediaList();
+               }, 800);
+            }
+         }
+
+         // Вызываем при загрузке страницы
+         $(document).ready(function() {
+            initMediaRefresh();
+         });
+
+         // Также обновляем при изменении скрытого поля id (когда Backpack устанавливает ID после создания)
+         var formIdInput = $('form input[name="id"]');
+         if (formIdInput.length) {
+            var idObserver = new MutationObserver(function(mutations) {
+               var currentId = formIdInput.val();
+               if (currentId && currentId !== engineId) {
+                  engineId = currentId;
+                  setTimeout(function() {
+                     refreshMediaList();
+                  }, 500);
+               }
+            });
+            
+            idObserver.observe(formIdInput[0], { 
+               attributes: true, 
+               attributeFilter: ['value'],
+               childList: false, 
+               subtree: false 
+            });
+         }
+
+         // Обновляем список после успешной отправки формы с файлами
+         var form = element.closest('form');
+         if (form.length) {
+            form.on('submit', function(e) {
+               // Проверяем, есть ли файлы для загрузки
+               var hasFiles = false;
+               if (fileInput.length && fileInput[0].files && fileInput[0].files.length > 0) {
+                  hasFiles = true;
+               }
+               
+               // Если есть файлы, устанавливаем флаг для обновления после редиректа
+               if (hasFiles && engineId) {
+                  sessionStorage.setItem('refreshEngineMedia_' + engineId, 'true');
+               }
+            });
+         }
+
+         // Проверяем флаг при загрузке страницы и обновляем список если нужно
+         $(document).ready(function() {
+            var formIdInput = $('form input[name="id"]');
+            if (formIdInput.length && formIdInput.val()) {
+               var currentEngineId = formIdInput.val();
+               var shouldRefresh = sessionStorage.getItem('refreshEngineMedia_' + currentEngineId);
+               
+               if (shouldRefresh === 'true') {
+                  sessionStorage.removeItem('refreshEngineMedia_' + currentEngineId);
+                  engineId = currentEngineId;
+                  
+                  // Обновляем список через задержку чтобы дать время Observer обработать файлы
+                  setTimeout(function() {
+                     refreshMediaList();
+                  }, 1500);
+               }
+            }
+         });
+
+         // Сохраняем функцию refreshMediaList в элементе для доступа извне
+         element.data('refreshMediaList', refreshMediaList);
       }
    </script>
    @endBassetBlock

@@ -34,8 +34,32 @@ class EnginesRequest extends FormRequest
             'description' => 'nullable|string',
 
             'images' => 'nullable|array|max:6',
-            'images.*' => 'mimes:jpeg,jpg,png,webp|max:5120',
+            'images.*' => 'sometimes|file|mimes:jpg,jpeg,png,webp|max:5120',
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        // Получаем файлы из request
+        $files = $this->file('images');
+        
+        // Если файлы есть, фильтруем только валидные UploadedFile объекты
+        if ($files && is_array($files)) {
+            $validFiles = array_filter($files, function ($file) {
+                return $file instanceof \Illuminate\Http\UploadedFile && $file->isValid();
+            });
+            
+            // Обновляем данные запроса
+            $this->merge([
+                'images' => array_values($validFiles) // array_values для переиндексации
+            ]);
+        } elseif ($files === null) {
+            // Если файлов нет, устанавливаем пустой массив
+            $this->merge(['images' => []]);
+        }
     }
 
     /**

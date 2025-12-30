@@ -116,6 +116,11 @@ class Engine extends Model implements HasMedia
             $media = $this->getMedia('images')->find($mediaId);
             if ($media) {
                 $media->delete();
+                
+                // Очищаем кэш изображений после удаления
+                $cacheKey = 'engine_images_' . $this->id;
+                \Illuminate\Support\Facades\Cache::forget($cacheKey);
+                
                 return true;
             }
             return false;
@@ -127,18 +132,71 @@ class Engine extends Model implements HasMedia
 
     /**
      * Получает список всех медиа для отображения в админке
+     * Включает только медиа из MediaLibrary (которые можно удалить)
      */
     public function getMediaList()
     {
-        return $this->getMedia('images')->map(function ($media) {
+        $mediaCollection = $this->getMedia('images');
+        
+        \Log::info('getMediaList for engine ' . $this->id, [
+            'media_count' => $mediaCollection->count(),
+            'oem' => $this->oem
+        ]);
+        
+        $mediaList = $mediaCollection->map(function ($media) {
+            try {
+                $thumbUrl = $media->getUrl('thumb');
+            } catch (\Exception $e) {
+                // Если конверсия не существует, используем оригинал
+                $thumbUrl = $media->getUrl();
+            }
+            
             return [
                 'id' => $media->id,
                 'name' => $media->file_name,
                 'url' => $media->getUrl(),
-                'thumb' => $media->getUrl('thumb'),
+                'thumb' => $thumbUrl,
                 'size' => $media->size,
+                'type' => 'uploaded', // Из MediaLibrary
             ];
         })->toArray();
+        
+        // Также добавляем изображения из папки public/images/engines/{oem}
+        // Но только для информации (их нельзя удалить через админку)
+        $slug = strtolower(trim($this->oem));
+        $folder = public_path("images/engines/" . $slug);
+        
+        if (is_dir($folder)) {
+            $folderImages = glob($folder . '/*.{jpg,jpeg,png,webp}', GLOB_BRACE);
+            \Log::info('getMediaList: Found folder images', [
+                'engine_id' => $this->id,
+                'folder' => $folder,
+                'count' => count($folderImages),
+                'exists' => is_dir($folder)
+            ]);
+            
+            foreach ($folderImages as $file) {
+                if (is_file($file)) {
+                    $filename = basename($file);
+                    $mediaList[] = [
+                        'id' => null, // Нет ID, так как это не из MediaLibrary
+                        'name' => $filename,
+                        'url' => "/images/engines/{$slug}/{$filename}",
+                        'thumb' => "/images/engines/{$slug}/{$filename}",
+                        'size' => filesize($file),
+                        'type' => 'folder', // Из папки, нельзя удалить
+                    ];
+                }
+            }
+        } else {
+            \Log::info('getMediaList: Folder does not exist', [
+                'engine_id' => $this->id,
+                'folder' => $folder,
+                'oem' => $this->oem
+            ]);
+        }
+        
+        return $mediaList;
     }
 
     protected static function booted()
