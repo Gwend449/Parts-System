@@ -118,6 +118,11 @@ class EnginesCrudController extends CrudController
             'type' => 'upload_multiple',
             'upload' => true,
             'disk' => 'public',
+            'temporary' => false,
+            'store_files' => true,
+            'mimes' => 'jpg,jpeg,png,webp',
+            'upload_url' => '/admin/engine/upload',
+            'delete_url' => '/admin/engine/delete-media',
         ]);
 
         CRUD::setValidation(EnginesRequest::class);
@@ -140,5 +145,50 @@ class EnginesCrudController extends CrudController
         $this->withoutPrimaryKey();
         $this->setImportHandler(EnginesImport::class);
         $this->crud->setOperationSetting('importer', EnginesImport::class);
+    }
+
+    /**
+     * Удаляет медиа файл из коллекции
+     * Обработчик для delete_url в поле images
+     */
+    public function deleteMedia(\Illuminate\Http\Request $request)
+    {
+        $mediaId = $request->get('id');
+        $engineId = $request->get('engine_id');
+
+        if (!$mediaId || !$engineId) {
+            return response()->json(['error' => 'Missing parameters'], 400);
+        }
+
+        try {
+            $engine = \App\Models\Engine::findOrFail($engineId);
+
+            // Удаляем медиа
+            $deleted = $engine->deleteMedia($mediaId);
+
+            if ($deleted) {
+                return response()->json(['success' => true, 'message' => 'Фотография удалена']);
+            }
+
+            return response()->json(['error' => 'Media not found'], 404);
+        } catch (\Exception $e) {
+            \Log::error('Delete media error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Получает список медиа для модального окна в админке
+     */
+    public function getMediaList(\Illuminate\Http\Request $request)
+    {
+        $engineId = $request->get('engine_id');
+
+        try {
+            $engine = \App\Models\Engine::findOrFail($engineId);
+            return response()->json(['media' => $engine->getMediaList()]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

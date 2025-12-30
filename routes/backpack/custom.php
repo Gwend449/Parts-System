@@ -17,6 +17,10 @@ Route::group([
     'namespace' => 'App\Http\Controllers\Admin',
 ], function () { // custom admin routes
     Route::crud('engines', 'EnginesCrudController');
+
+    // Маршруты для управления медиа в Engine
+    Route::post('engine/delete-media', 'EnginesCrudController@deleteMedia')->name('engine.delete-media');
+    Route::get('engine/media-list', 'EnginesCrudController@getMediaList')->name('engine.media-list');
 }); // this should be the absolute last line of this file
 
 /**

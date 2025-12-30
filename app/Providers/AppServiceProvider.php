@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
+use App\Models\Engine;
+use App\Observers\EngineObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,5 +26,8 @@ class AppServiceProvider extends ServiceProvider
             \URL::forceScheme('https');
         }
         Paginator::useBootstrapFive();
+        
+        // Регистрируем observer для модели Engine
+        Engine::observe(EngineObserver::class);
     }
 }

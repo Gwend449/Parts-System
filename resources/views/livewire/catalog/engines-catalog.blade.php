@@ -33,8 +33,12 @@
             <div class="col">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="ratio ratio-4x3 rounded-top overflow-hidden bg-white">
-                        <img src="{{ $engine->getAllImages()[0] ?? asset('images/placeholder-engine.jpg') }}"
-                            class="img-fluid w-100 h-100" style="object-fit: contain;" alt="{{ $engine->title }}">
+                        @php
+                            $images = $engine->getAllImages();
+                            $imageUrl = isset($images[0]) ? $images[0]['thumb'] : asset('images/placeholder-engine.jpg');
+                        @endphp
+                        <img src="{{ $imageUrl }}" class="img-fluid w-100 h-100" style="object-fit: contain;"
+                            alt="{{ $engine->title }}">
                     </div>
                     <div class="card-body p-3 d-flex flex-column">
                         <p class="text-muted small mb-1">{{ $engine->brand }}</p>
