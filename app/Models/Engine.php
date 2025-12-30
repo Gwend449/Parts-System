@@ -43,7 +43,7 @@ class Engine extends Model implements HasMedia
     {
         $this->addMediaCollection('images')
             ->useDisk('public')
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg']);
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 
     /**

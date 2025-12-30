@@ -115,14 +115,8 @@ class EnginesCrudController extends CrudController
         CRUD::addField([
             'name' => 'images',
             'label' => 'Фотографии мотора',
-            'type' => 'upload_multiple',
-            'upload' => true,
-            'disk' => 'public',
-            'temporary' => false,
-            'store_files' => true,
-            'mimes' => 'jpg,jpeg,png,webp',
-            'upload_url' => '/admin/engine/upload',
-            'delete_url' => '/admin/engine/delete-media',
+            'type' => 'engine_media_gallery',
+            'hint' => 'Максимум 6 изображений. Поддерживаемые форматы: JPG, PNG, WEBP. Максимальный размер: 5 MB',
         ]);
 
         CRUD::setValidation(EnginesRequest::class);

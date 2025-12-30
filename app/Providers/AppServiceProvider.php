@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
             \URL::forceScheme('https');
         }
         Paginator::useBootstrapFive();
-        
+
         // Регистрируем observer для модели Engine
         Engine::observe(EngineObserver::class);
     }

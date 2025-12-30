@@ -34,7 +34,7 @@ class EnginesRequest extends FormRequest
             'description' => 'nullable|string',
 
             'images' => 'nullable|array|max:6',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+            'images.*' => 'mimes:jpeg,jpg,png,webp|max:5120',
         ];
     }
 
@@ -58,7 +58,6 @@ class EnginesRequest extends FormRequest
     public function messages()
     {
         return [
-            'images.*.image' => 'Файл должен быть изображением',
             'images.*.mimes' => 'Допустимые форматы: JPG, PNG, WEBP',
             'images.*.max' => 'Размер изображения не должен превышать 5 MB',
             'images.max' => 'Можно загрузить не более 6 изображений',
