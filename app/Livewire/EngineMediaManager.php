@@ -31,14 +31,23 @@ class EngineMediaManager extends Component
    {
       // Получаем только медиа из MediaLibrary (которые можно удалить)
       $this->images = $this->engine->getMedia('images')->map(function ($media) {
+         try {
+            // Пробуем получить конверсию thumb, если нет - берем оригинал
+            $thumbUrl = $media->getUrl('thumb');
+         } catch (\Exception $e) {
+            $thumbUrl = $media->getUrl();
+         }
+
          return [
             'id' => $media->id,
             'name' => $media->file_name,
-            'thumb' => $media->getUrl('thumb') ?? $media->getUrl(),
+            'thumb' => $thumbUrl,
             'url' => $media->getUrl(),
             'size' => round($media->size / 1024 / 1024, 2), // в MB
          ];
       })->toArray();
+
+      \Log::info('EngineMediaManager loaded ' . count($this->images) . ' images for engine ' . $this->engine->id);
    }
 
    /**
@@ -47,7 +56,7 @@ class EngineMediaManager extends Component
    public function saveMedia()
    {
       if (empty($this->uploadedFiles)) {
-         $this->dispatch('notify', ['type' => 'warning', 'message' => 'Выберите файлы']);
+         session()->flash('warning', 'Выберите файлы');
          return;
       }
 
@@ -68,9 +77,25 @@ class EngineMediaManager extends Component
             throw new \Exception('Максимум 6 фотографий. Текущих: ' . $currentImages . ', попытка загрузить: ' . $newFiles);
          }
 
+         \Log::info('Starting media upload for engine ' . $this->engine->id, [
+            'current_images' => $currentImages,
+            'new_files' => $newFiles,
+         ]);
+
          foreach ($this->uploadedFiles as $file) {
-            $this->engine->addMedia($file)
+            \Log::info('Adding media file', [
+               'filename' => $file->getClientOriginalName(),
+               'size' => $file->getSize(),
+               'mime' => $file->getMimeType(),
+            ]);
+
+            $media = $this->engine->addMedia($file)
                ->toMediaCollection('images');
+
+            \Log::info('Media added successfully', [
+               'media_id' => $media->id,
+               'url' => $media->getUrl(),
+            ]);
          }
 
          // Очищаем загруженные файлы
@@ -82,12 +107,15 @@ class EngineMediaManager extends Component
          // Очищаем кэш
          \Cache::forget('engine_images_' . $this->engine->id);
 
-         $this->dispatch('notify', ['type' => 'success', 'message' => 'Фотографии загружены успешно!']);
+         session()->flash('success', 'Фотографии загружены успешно! (' . $newFiles . ' файлов)');
+         $this->dispatch('photos-updated');
       } catch (ValidationException $e) {
-         $this->dispatch('notify', ['type' => 'error', 'message' => 'Ошибка валидации: ' . collect($e->errors())->flatten()->first()]);
+         session()->flash('error', 'Ошибка валидации: ' . collect($e->errors())->flatten()->first());
       } catch (\Exception $e) {
-         \Log::error('Error uploading media: ' . $e->getMessage());
-         $this->dispatch('notify', ['type' => 'error', 'message' => 'Ошибка при загрузке: ' . $e->getMessage()]);
+         \Log::error('Error uploading media: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString(),
+         ]);
+         session()->flash('error', 'Ошибка при загрузке: ' . $e->getMessage());
       }
    }
 
@@ -100,6 +128,7 @@ class EngineMediaManager extends Component
          $media = $this->engine->getMedia('images')->find($mediaId);
 
          if ($media) {
+            $filename = $media->file_name ?? 'файл';
             $media->delete();
 
             // Очищаем кэш
@@ -108,11 +137,12 @@ class EngineMediaManager extends Component
             // Перезагружаем список
             $this->loadImages();
 
-            $this->dispatch('notify', ['type' => 'success', 'message' => 'Фотография удалена']);
+            session()->flash('success', '✓ Фотография удалена: ' . $filename);
+            $this->dispatch('photo-deleted');
          }
       } catch (\Exception $e) {
          \Log::error('Error deleting media: ' . $e->getMessage());
-         $this->dispatch('notify', ['type' => 'error', 'message' => 'Ошибка при удалении: ' . $e->getMessage()]);
+         session()->flash('error', '✗ Ошибка при удалении: ' . $e->getMessage());
       }
    }
 

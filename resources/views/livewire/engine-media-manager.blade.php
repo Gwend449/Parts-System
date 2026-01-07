@@ -4,6 +4,28 @@
    </div>
 
    <div class="card-body">
+      <!-- Flash сообщения (успех, ошибка, предупреждение) -->
+      @if($message = session('success'))
+         <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="la la-check-circle"></i> {{ $message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+         </div>
+      @endif
+
+      @if($message = session('error'))
+         <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="la la-exclamation-circle"></i> {{ $message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+         </div>
+      @endif
+
+      @if($message = session('warning'))
+         <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="la la-exclamation-triangle"></i> {{ $message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+         </div>
+      @endif
+
       <!-- Существующие фото -->
       @if($images)
          <div class="mb-4">
@@ -101,34 +123,30 @@
 
 @push('scripts')
    <script>
-      // Обработчик событий Livewire для уведомлений
-      document.addEventListener('livewire:dispatch', function (event) {
-         if (event.detail && event.detail.action === 'notify') {
-            const payload = event.detail.payload[0];
-            if (payload && payload.type && payload.message) {
-               const alertClass = payload.type === 'success' ? 'success' :
-                  payload.type === 'error' ? 'danger' : 'warning';
+      // Автоматически скрывать alert через 4 секунды
+      document.addEventListener('DOMContentLoaded', function () {
+         const alerts = document.querySelectorAll('.alert');
+         alerts.forEach(alert => {
+            setTimeout(() => {
+               const bsAlert = new bootstrap.Alert(alert);
+               bsAlert.close();
+            }, 4000);
+         });
+      });
 
-               const alertHtml = `<div class="alert alert-${alertClass} alert-dismissible fade show" role="alert">
-                           ${payload.message}
-                           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                       </div>`;
-
-               // Вставляем перед картинками
-               const firstChild = document.querySelector('[wire\\:id="' + event.detail.component + '"] .card-body > div:first-child');
-               if (firstChild) {
-                  firstChild.insertAdjacentHTML('beforebegin', alertHtml);
-               } else {
-                  document.querySelector('[wire\\:id="' + event.detail.component + '"] .card-body').insertAdjacentHTML('afterbegin', alertHtml);
-               }
-
-               // Автоматически скрываем
+      // Обработчик Livewire событий для динамических alert'ов
+      document.addEventListener('livewire:updated', function () {
+         const alerts = document.querySelectorAll('.alert');
+         alerts.forEach(alert => {
+            // Пропускаем уже установленные таймауты
+            if (!alert.dataset.alertTimer) {
+               alert.dataset.alertTimer = true;
                setTimeout(() => {
-                  const alerts = document.querySelectorAll('[wire\\:id="' + event.detail.component + '"] .alert');
-                  alerts.forEach(alert => alert.remove());
+                  const bsAlert = new bootstrap.Alert(alert);
+                  bsAlert.close();
                }, 4000);
             }
-         }
+         });
       });
    </script>
 @endpush
