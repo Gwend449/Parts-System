@@ -5,16 +5,20 @@
 
                 <!-- Main image -->
                 <div class="ratio ratio-1x1 mb-3 bg-white rounded overflow-hidden">
-                    <img id="mainImage" src="{{ $engine->getAllImages()[0] ?? asset('images/placeholder-engine.jpg') }}"
-                        class="img-fluid w-100 h-100" style="object-fit: contain;" alt="{{ $engine->title }}">
+                    @php
+                        $images = $engine->getAllImages();
+                        $mainImageUrl = isset($images[0]) ? $images[0]['preview'] : asset('images/placeholder-engine.jpg');
+                    @endphp
+                    <img id="mainImage" src="{{ $mainImageUrl }}" class="img-fluid w-100 h-100"
+                        style="object-fit: contain;" alt="{{ $engine->title }}">
                 </div>
 
                 <!-- Thumbnails -->
                 <div class="d-flex gap-3 flex-wrap justify-content-start">
                     @foreach($engine->getAllImages() as $img)
-                        <img src="{{ $img }}" class="img-thumbnail"
+                        <img src="{{ $img['thumb'] }}" class="img-thumbnail"
                             style="width:90px;height:90px;object-fit:cover;cursor:pointer;"
-                            onclick="document.getElementById('mainImage').src=this.src" alt="">
+                            onclick="document.getElementById('mainImage').src='{{ $img['preview'] }}'" alt="">
                     @endforeach
                 </div>
 

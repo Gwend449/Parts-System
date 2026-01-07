@@ -75,9 +75,8 @@
 
                         <div class="mt-4 pt-3 border-top small">
                             <p class="text-muted fw-semibold mb-2">Связаться напрямую:</p>
-                            <p class="fw-bold mb-1">+7 (924) 735-47-84</p>
-                            <p class="fw-bold mb-1">+7 (914) 703-66-12</p>
-                            <p class="fw-bold">+7 (908) 993-66-12</p>
+                            <p class="fw-bold mb-1">+7 (910) 121-98-98</p>
+                            <p class="fw-bold mb-1">+7 (910) 121-61-31</p>
                         </div>
                     </form>
                 </div>

@@ -32,6 +32,9 @@ class EnginesCrudController extends CrudController
         CRUD::setModel(\App\Models\Engine::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/engines');
         CRUD::setEntityNameStrings('двигатель', 'двигатели');
+
+        // Используем кастомный вид для редактирования (с компонентом медиа)
+        CRUD::setEditView('vendor.backpack.crud.engines_edit');
     }
 
     /**
@@ -112,14 +115,6 @@ class EnginesCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::addField([
-            'name' => 'images',
-            'label' => 'Фотографии мотора',
-            'type' => 'upload_multiple',
-            'upload' => true,
-            'disk' => 'public',
-        ]);
-
         CRUD::setValidation(EnginesRequest::class);
         CRUD::setFromDb();
     }
@@ -132,7 +127,8 @@ class EnginesCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::setValidation(EnginesRequest::class);
+        CRUD::setFromDb();
     }
 
     protected function setupImportOperation()
@@ -140,5 +136,79 @@ class EnginesCrudController extends CrudController
         $this->withoutPrimaryKey();
         $this->setImportHandler(EnginesImport::class);
         $this->crud->setOperationSetting('importer', EnginesImport::class);
+    }
+
+    /**
+     * Удаляет медиа файл из коллекции
+     * Обработчик для delete_url в поле images
+     */
+    public function deleteMedia(\Illuminate\Http\Request $request)
+    {
+        $mediaId = $request->get('id');
+        $engineId = $request->get('engine_id');
+
+        if (!$mediaId || !$engineId) {
+            return response()->json(['error' => 'Missing parameters'], 400);
+        }
+
+        try {
+            $engine = \App\Models\Engine::findOrFail($engineId);
+
+            // Удаляем медиа
+            $deleted = $engine->deleteMedia($mediaId);
+
+            if ($deleted) {
+                // Очищаем кэш изображений после удаления
+                $cacheKey = 'engine_images_' . $engineId;
+                \Illuminate\Support\Facades\Cache::forget($cacheKey);
+
+                return response()->json(['success' => true, 'message' => 'Фотография удалена']);
+            }
+
+            return response()->json(['error' => 'Media not found'], 404);
+        } catch (\Exception $e) {
+            \Log::error('Delete media error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Получает список медиа для модального окна в админке
+     */
+    public function getMediaList(\Illuminate\Http\Request $request)
+    {
+        $engineId = $request->get('engine_id');
+
+        \Log::info('getMediaList request', [
+            'engine_id' => $engineId,
+            'user_id' => backpack_user()->id ?? null,
+            'url' => $request->fullUrl()
+        ]);
+
+        if (!$engineId) {
+            \Log::warning('getMediaList: engine_id is missing');
+            return response()->json(['error' => 'engine_id is required'], 400);
+        }
+
+        try {
+            $engine = \App\Models\Engine::findOrFail($engineId);
+            $mediaList = $engine->getMediaList();
+
+            \Log::info('getMediaList success', [
+                'engine_id' => $engineId,
+                'media_count' => count($mediaList)
+            ]);
+
+            return response()->json(['media' => $mediaList]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('getMediaList: Engine not found', ['engine_id' => $engineId]);
+            return response()->json(['error' => 'Engine not found'], 404);
+        } catch (\Exception $e) {
+            \Log::error('getMediaList error: ' . $e->getMessage(), [
+                'engine_id' => $engineId,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

@@ -9,8 +9,12 @@
 
                         <!-- Image -->
                         <div class="ratio ratio-4x3 overflow-hidden">
-                            <img src="{{ $engine->getAllImages()[0] ?? asset('images/placeholder-engine.jpg') }}"
-                                class="img-fluid w-100 h-100" style="object-fit: cover;" alt="{{ $engine->title }}">
+                            @php
+                                $images = $engine->getAllImages();
+                                $imageUrl = isset($images[0]) ? $images[0]['thumb'] : asset('images/placeholder-engine.jpg');
+                            @endphp
+                            <img src="{{ $imageUrl }}" class="img-fluid w-100 h-100" style="object-fit: cover;"
+                                alt="{{ $engine->title }}">
                         </div>
 
                         <!-- Body -->
