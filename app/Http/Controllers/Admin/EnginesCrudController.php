@@ -32,6 +32,9 @@ class EnginesCrudController extends CrudController
         CRUD::setModel(\App\Models\Engine::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/engines');
         CRUD::setEntityNameStrings('двигатель', 'двигатели');
+
+        // Используем кастомный вид для редактирования (с компонентом медиа)
+        CRUD::setEditView('vendor.backpack.crud.engines_edit');
     }
 
     /**
@@ -112,13 +115,6 @@ class EnginesCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::addField([
-            'name' => 'images',
-            'label' => 'Фотографии мотора',
-            'type' => 'engine_media_gallery',
-            'hint' => 'Максимум 6 изображений. Поддерживаемые форматы: JPG, PNG, WEBP. Максимальный размер: 5 MB',
-        ]);
-
         CRUD::setValidation(EnginesRequest::class);
         CRUD::setFromDb();
     }
@@ -131,7 +127,8 @@ class EnginesCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::setValidation(EnginesRequest::class);
+        CRUD::setFromDb();
     }
 
     protected function setupImportOperation()
@@ -164,7 +161,7 @@ class EnginesCrudController extends CrudController
                 // Очищаем кэш изображений после удаления
                 $cacheKey = 'engine_images_' . $engineId;
                 \Illuminate\Support\Facades\Cache::forget($cacheKey);
-                
+
                 return response()->json(['success' => true, 'message' => 'Фотография удалена']);
             }
 
@@ -196,12 +193,12 @@ class EnginesCrudController extends CrudController
         try {
             $engine = \App\Models\Engine::findOrFail($engineId);
             $mediaList = $engine->getMediaList();
-            
+
             \Log::info('getMediaList success', [
                 'engine_id' => $engineId,
                 'media_count' => count($mediaList)
             ]);
-            
+
             return response()->json(['media' => $mediaList]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             \Log::error('getMediaList: Engine not found', ['engine_id' => $engineId]);
