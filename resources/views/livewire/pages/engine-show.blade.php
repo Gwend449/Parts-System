@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('page_title', $engine->title)
 @section('content')
     <div class="page-container py-5">
 

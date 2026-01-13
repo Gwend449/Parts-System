@@ -1,28 +1,8 @@
 <div>
     <div class="row g-5">
         <div class="col-lg-6">
-            <div class="border rounded shadow-sm p-3 bg-white">
-
-                <!-- Main image -->
-                <div class="ratio ratio-1x1 mb-3 bg-white rounded overflow-hidden">
-                    @php
-                        $images = $engine->getAllImages();
-                        $mainImageUrl = isset($images[0]) ? $images[0]['preview'] : asset('images/placeholder-engine.jpg');
-                    @endphp
-                    <img id="mainImage" src="{{ $mainImageUrl }}" class="img-fluid w-100 h-100"
-                        style="object-fit: contain;" alt="{{ $engine->title }}">
-                </div>
-
-                <!-- Thumbnails -->
-                <div class="d-flex gap-3 flex-wrap justify-content-start">
-                    @foreach($engine->getAllImages() as $img)
-                        <img src="{{ $img['thumb'] }}" class="img-thumbnail"
-                            style="width:90px;height:90px;object-fit:cover;cursor:pointer;"
-                            onclick="document.getElementById('mainImage').src='{{ $img['preview'] }}'" alt="">
-                    @endforeach
-                </div>
-
-            </div>
+            <!-- Gallery Component -->
+            <x-engine-gallery :images="$engine->getAllImages()" />
         </div>
 
         <!-- RIGHT COLUMN: Content -->
@@ -66,7 +46,7 @@
             </button>
         </div>
 
-        <div class="row mt-lg-4 mt-3">
+        <div class="row mt-lg-4 mt-3 w-100">
 
             <!-- Left Column: Description -->
             <div class="col-lg-6 col-12 pe-lg-4 border-lg-end">

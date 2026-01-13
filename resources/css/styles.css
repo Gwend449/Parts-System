@@ -98,17 +98,18 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
 
     padding: 0.5rem;
     height: auto;
-    pointer-events: none; /* позволяет клики по внутренним элементам */
+    pointer-events: none;
+    /* позволяет клики по внутренним элементам */
 }
 
 /* Панель */
 .admin-topbar {
     display: flex;
     gap: 1rem;
-    background: linear-gradient(90deg, rgb(198,123,22), rgb(220,150,50));
+    background: linear-gradient(90deg, rgb(198, 123, 22), rgb(220, 150, 50));
     padding: 0.6rem 1.2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     align-items: center;
     justify-content: flex-end;
     pointer-events: auto;
@@ -117,7 +118,7 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
 
 /* Hover эффект панели */
 .admin-topbar:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 /* Кнопки */
@@ -126,28 +127,28 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
     text-decoration: none;
     padding: 0.45rem 0.9rem;
     border-radius: 8px;
-    background-color: rgb(84,91,102);
+    background-color: rgb(84, 91, 102);
     font-weight: 500;
     transition: all 0.25s ease;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .admin-topbar-btn:hover {
-    background-color: rgb(70,75,85);
+    background-color: rgb(70, 75, 85);
     transform: translateY(-1px);
 }
 
 /* Главная кнопка "Добавить мотор" */
 .admin-topbar-btn-primary {
     background: #fff;
-    color: rgb(198,123,22);
+    color: rgb(198, 123, 22);
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(198,123,22,0.25);
+    box-shadow: 0 2px 8px rgba(198, 123, 22, 0.25);
 }
 
 .admin-topbar-btn-primary:hover {
-    background: rgb(255,243,220);
-    color: rgb(160,100,18);
+    background: rgb(255, 243, 220);
+    color: rgb(160, 100, 18);
     transform: translateY(-1px);
 }
 
@@ -161,6 +162,7 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
         gap: 0.5rem;
         padding: 0.5rem 1rem;
     }
+
     body {
         padding-top: 6rem;
     }
@@ -168,8 +170,10 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
 
 
 .pagination .page-item.active .page-link {
-    background-color: rgb(198, 123, 22) !important; /* оранжевый фон */
-    color: black !important;             /* черный текст */
+    background-color: rgb(198, 123, 22) !important;
+    /* оранжевый фон */
+    color: black !important;
+    /* черный текст */
     border-color: rgb(198, 123, 22) !important;
 }
 
@@ -181,4 +185,297 @@ a.btn.btn-warning.btn-lg.fw-bold:hover {
 /* Отступ между кнопками */
 .pagination .page-item {
     margin-right: 0.25rem;
+}
+
+/* ================================
+   IMAGE DISPLAY OPTIMIZATION
+================================= */
+
+/* Карточки каталога */
+.engine-image img {
+    transition: transform 0.25s ease;
+}
+
+.engine-image:hover img {
+    transform: scale(1.02);
+}
+
+/* Полная версия товара */
+.engine-preview-image {
+    position: relative;
+    width: 100%;
+    height: auto;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+}
+
+.engine-preview-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-height: 600px;
+    max-width: 100%;
+}
+
+/* ================================
+   GALLERY COMPONENT
+================================= */
+
+.engine-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.main-image-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.main-image-wrapper:hover {
+    transform: scale(1.01);
+    border-color: #c67b16;
+    box-shadow: 0 4px 12px rgba(198, 123, 22, 0.15);
+}
+
+.main-image {
+    width: 100%;
+    height: auto;
+    max-height: 600px;
+    object-fit: contain;
+    display: block;
+    background: #fafafa;
+}
+
+.thumbnails-container {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 0 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .thumbnails-container {
+        padding: 0;
+        justify-content: center;
+    }
+}
+
+.thumbnail {
+    flex-shrink: 0;
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+}
+
+.thumbnail:hover {
+    border-color: #c67b16;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(198, 123, 22, 0.2);
+}
+
+.thumbnail.active {
+    border-color: #c67b16;
+    box-shadow: 0 0 8px rgba(198, 123, 22, 0.4);
+}
+
+/* ================================
+   GALLERY MODAL
+================================= */
+
+.gallery-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease-in;
+    overflow: hidden;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-image {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    cursor: pointer;
+    padding: 0 8px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    z-index: 10000;
+    line-height: 1;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.modal-close:active {
+    transform: scale(0.95);
+}
+
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    font-size: 3rem;
+    cursor: pointer;
+    padding: 0 20px;
+    transition: all 0.2s ease;
+    user-select: none;
+    line-height: 1;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.nav-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.prev-btn {
+    left: 20px;
+}
+
+.next-btn {
+    right: 20px;
+}
+
+.indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .gallery-modal {
+        padding: 0.5rem;
+    }
+
+    .nav-btn {
+        font-size: 2rem;
+        padding: 0 10px;
+        height: 50px;
+    }
+
+    .prev-btn {
+        left: 10px;
+    }
+
+    .next-btn {
+        right: 10px;
+    }
+
+    .modal-close {
+        top: 10px;
+        right: 10px;
+        font-size: 2rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .indicators {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+    }
+
+    .thumbnail {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-btn {
+        font-size: 1.5rem;
+        padding: 0 5px;
+    }
+
+    .main-image-wrapper {
+        border-radius: 4px;
+    }
 }
