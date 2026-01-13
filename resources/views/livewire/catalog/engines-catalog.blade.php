@@ -32,28 +32,31 @@
         @foreach($engines as $engine)
             <div class="col">
                 <div class="card shadow-sm border-0 h-100">
-                    <div class="ratio ratio-4x3 rounded-top overflow-hidden bg-white">
-                        @php
-                            $images = $engine->getAllImages();
-                            $imageUrl = isset($images[0]) ? $images[0]['thumb'] : asset('images/placeholder-engine.jpg');
-                        @endphp
-                        <img src="{{ $imageUrl }}" class="img-fluid w-100 h-100" style="object-fit: contain;"
+                    <div class="ratio ratio-4x3 bg-light rounded-top overflow-hidden engine-image position-relative">
+                        <img src="{{ $engine->getPreviewImage() }}"
+                            class="position-absolute top-0 start-0 w-100 h-100 object-fit-contain"
                             alt="{{ $engine->title }}">
                     </div>
+
                     <div class="card-body p-3 d-flex flex-column">
                         <p class="text-muted small mb-1">{{ $engine->brand }}</p>
                         <h6 class="fw-bold">{{ $engine->title }}</h6>
-                        <p class="fw-bold mt-2 mb-3">{{ number_format($engine->price, 0, ',', ' ') }} ₽</p>
+                        <p class="fw-bold mt-2 mb-3">
+                            {{ number_format($engine->price, 0, ',', ' ') }} ₽
+                        </p>
+
                         <div class="mt-auto d-flex gap-2">
-                            <a href="{{ route('engine.show', $engine->slug) }}"
-                                class="btn btn-outline-primary btn-sm w-50">Подробнее</a>
-                            <button class="btn bg-font-color btn-sm w-50 text-light"
+                            <a href="{{ route('engine.show', $engine->slug) }}" class="btn btn-outline-primary btn-sm w-50">
+                                Подробнее
+                            </a>
+                            <button class="btn btn-secondary btn-sm w-50"
                                 wire:click="$dispatch('openEngineModal', { engineId: {{ $engine->id }} })">
                                 Стоимость
                             </button>
                         </div>
                     </div>
                 </div>
+
             </div>
         @endforeach
     </div>

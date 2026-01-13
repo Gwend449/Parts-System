@@ -116,11 +116,11 @@ class Engine extends Model implements HasMedia
             $media = $this->getMedia('images')->find($mediaId);
             if ($media) {
                 $media->delete();
-                
+
                 // Очищаем кэш изображений после удаления
                 $cacheKey = 'engine_images_' . $this->id;
                 \Illuminate\Support\Facades\Cache::forget($cacheKey);
-                
+
                 return true;
             }
             return false;
@@ -137,12 +137,12 @@ class Engine extends Model implements HasMedia
     public function getMediaList()
     {
         $mediaCollection = $this->getMedia('images');
-        
+
         \Log::info('getMediaList for engine ' . $this->id, [
             'media_count' => $mediaCollection->count(),
             'oem' => $this->oem
         ]);
-        
+
         $mediaList = $mediaCollection->map(function ($media) {
             try {
                 $thumbUrl = $media->getUrl('thumb');
@@ -150,7 +150,7 @@ class Engine extends Model implements HasMedia
                 // Если конверсия не существует, используем оригинал
                 $thumbUrl = $media->getUrl();
             }
-            
+
             return [
                 'id' => $media->id,
                 'name' => $media->file_name,
@@ -160,12 +160,12 @@ class Engine extends Model implements HasMedia
                 'type' => 'uploaded', // Из MediaLibrary
             ];
         })->toArray();
-        
+
         // Также добавляем изображения из папки public/images/engines/{oem}
         // Но только для информации (их нельзя удалить через админку)
         $slug = strtolower(trim($this->oem));
         $folder = public_path("images/engines/" . $slug);
-        
+
         if (is_dir($folder)) {
             $folderImages = glob($folder . '/*.{jpg,jpeg,png,webp}', GLOB_BRACE);
             \Log::info('getMediaList: Found folder images', [
@@ -174,7 +174,7 @@ class Engine extends Model implements HasMedia
                 'count' => count($folderImages),
                 'exists' => is_dir($folder)
             ]);
-            
+
             foreach ($folderImages as $file) {
                 if (is_file($file)) {
                     $filename = basename($file);
@@ -195,7 +195,7 @@ class Engine extends Model implements HasMedia
                 'oem' => $this->oem
             ]);
         }
-        
+
         return $mediaList;
     }
 
@@ -205,6 +205,14 @@ class Engine extends Model implements HasMedia
             // Удаляем все медиа при удалении Engine
             $engine->clearMediaCollection('images');
         });
+    }
+
+    public function getPreviewImage(): string
+    {
+        $images = $this->getAllImages();
+
+        return $images[0]['thumb']
+            ?? asset('images/placeholder-engine.jpg');
     }
     /*
     |--------------------------------------------------------------------------
