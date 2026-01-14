@@ -57,7 +57,7 @@
             </div>
 
             <hr class="bg-secondary">
-            <div class="text-center text-light">
+            <div class="text-center text-light mt-3">
                 <p>&copy; 2025 АвтоРазбор <span class="tex  bt-brand">1749</span>. Все права защищены.</p>
             </div>
         </div>

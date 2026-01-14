@@ -8,7 +8,7 @@
         <div class="row g-5 mb-5">
             <!-- Payment Section -->
             <div class="col-md-6">
-                <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom border-warning border-3">Условия оплаты</h2>
+                <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom">Условия оплаты</h2>
                 <ul class="list-unstyled space-y-4">
                     <li class="d-flex">
                         <span class="text-warning fw-bold me-3">✓</span>
@@ -43,7 +43,7 @@
 
             <!-- Delivery Section -->
             <div class="col-md-6">
-                <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom border-warning border-3">Условия доставки</h2>
+                <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom">Условия доставки</h2>
                 <ul class="list-unstyled space-y-4">
                     <li class="d-flex">
                         <span class="text-warning fw-bold me-3">📦</span>
@@ -82,18 +82,20 @@
             <h3 class="fs-4 fw-bold mb-4">Возникли вопросы?</h3>
             <p class="mb-4">Свяжитесь с нами и мы ответим на все вопросы о доставке и оплате</p>
 
-            <div class="row g-1 w-10">
-                <div class="col">
-                    <p class="fw-bold mb-3">Телефоны:</p>
-                    <p class="fs-5 mb-2">+7 (910) 121-98-98</p>
-                    <p class="fs-5">+7 (910) 121-61-31</p>
+            <div class="row gy-4">
+                <!-- Телефоны -->
+                <div class="col-md-6">
+                    <p class="fw-bold mb-2">Телефоны:</p>
+                    <p class="fs-5 mb-1">+7 (910) 121-98-98</p>
+                    <p class="fs-5 mb-0">+7 (910) 121-61-31</p>
                 </div>
-                <div class="col mb-1">
-                    <h5 class="text-muted small fw-bold text-uppercase mb-2">Email</h5>
-                    <p class="fs-5 fw-bold">fasti.s02@mail.ru</p>
+
+                <!-- Email -->
+                <div class="col-md-6">
+                    <p class="fw-bold mb-2">Email:</p>
+                    <p class="fs-5 fw-bold mb-0">fasti.s02@mail.ru</p>
                 </div>
             </div>
-
         </div>
     </div>
 @endsection

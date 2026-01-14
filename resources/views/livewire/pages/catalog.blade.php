@@ -39,13 +39,13 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Ваше имя</label>
-                            <input type="text" class="form-control rounded-3 border-2 py-2" placeholder="Иван Иванов"
+                            <input type="text" class="form-control rounded-3 border-1 py-2" placeholder="Иван Иванов"
                                 required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Телефон</label>
-                            <input type="tel" class="form-control rounded-3 border-2 py-2" placeholder="+7 (9XX) XXX-XX-XX"
+                            <input type="tel" class="form-control rounded-3 border-1 py-2" placeholder="+7 (9XX) XXX-XX-XX"
                                 required>
                         </div>
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -53,15 +54,17 @@ class Engine extends Model implements HasMedia
     public function registerMediaConversions(?\Spatie\MediaLibrary\MediaCollections\Models\Media $media = null): void
     {
         // Преобразование для каталога
+        // Используем Fit::Contain, чтобы сохранить пропорции изображения без жёсткого кропа
         $this->addMediaConversion('thumb')
-            ->crop(250, 250)
-            ->quality(75)
+            ->fit(Fit::Contain, 350, 350)
+            ->quality(100)
             ->nonQueued();
 
         // Преобразование для деталей товара
+        // Также сохраняем пропорции, чтобы мотор отображался целиком
         $this->addMediaConversion('preview')
-            ->crop(600, 600)
-            ->quality(75)
+            ->fit(Fit::Contain, 900, 900)
+            ->quality(100)
             ->nonQueued();
     }
 
@@ -78,8 +81,9 @@ class Engine extends Model implements HasMedia
                 // Используем thumb конверсию для быстрой загрузки в каталоге
                 $images[] = [
                     'original' => $media->getUrl(),
-                    'thumb' => $media->getUrl('thumb'),     // 250x250
-                    'preview' => $media->getUrl('preview'),  // 600x600
+                    'thumb' => $media->getUrl('thumb'),     // 350x350 после конверсии
+                    // Для детальной карточки и модалки отдаём оригинал без повторного сжатия
+                    'preview' => $media->getUrl(),
                     'id' => $media->id,
                     'type' => 'uploaded',
                 ];

@@ -8,7 +8,7 @@
         <div class="row g-5 mb-5">
             <!-- Contact Info -->
             <div class="col-lg-6">
-                <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom border-warning border-3">Информация</h2>
+                <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom">Информация</h2>
 
                 <div class="mb-5">
                     <h5 class="text-muted small fw-bold text-uppercase mb-2">Адрес</h5>
@@ -34,7 +34,7 @@
 
             <!-- Contact Form -->
             <div class="col-lg-6">
-                <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom border-warning border-3">Форма обратной связи</h2>
+                <h2 class="fs-4 fw-bold mb-4 pb-3 border-bottom">Форма обратной связи</h2>
 
                 <!-- Alert для сообщений -->
                 <div id="formAlert" class="alert alert-dismissible fade" role="alert" style="display: none;">
@@ -47,7 +47,7 @@
                     <div class="mb-4">
                         <label for="contactName" class="form-label fw-semibold">Ваше имя <span
                                 class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-lg border-2" id="contactName" name="name"
+                        <input type="text" class="form-control rounded-3 border-1" id="contactName" name="name"
                             placeholder="Иван Иванов" required>
                         <small class="text-danger" style="display: none;" id="nameError"></small>
                     </div>
@@ -56,7 +56,7 @@
                     <div class="mb-4">
                         <label for="contactPhone" class="form-label fw-semibold">Телефон <span
                                 class="text-danger">*</span></label>
-                        <input type="tel" class="form-control form-control-lg border-2" id="contactPhone" name="phone"
+                        <input type="tel" class="form-control rounded-3 border-1" id="contactPhone" name="phone"
                             placeholder="+7 (9XX) XXX-XX-XX" required>
                         <small class="text-danger" style="display: none;" id="phoneError"></small>
                     </div>
@@ -64,7 +64,7 @@
                     <!-- Car Model -->
                     <div class="mb-4">
                         <label for="contactCar" class="form-label fw-semibold">Марка автомобиля</label>
-                        <select class="form-select" id="contactBrand" name="brand">
+                        <select class="form-control rounded-3 border-1" id="contactBrand" name="brand">
                             <option value="">Выберите марку...</option>
                             @foreach(\App\Models\Engine::select('brand')->distinct()->pluck('brand') as $b)
                                 <option value="{{ $b }}">{{ $b }}</option>
