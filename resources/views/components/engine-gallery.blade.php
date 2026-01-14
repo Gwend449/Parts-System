@@ -52,12 +52,14 @@
 
       // Инициализация главного изображения
       function updateMainImage() {
-         mainImage.src = imagesData[currentIndex].preview;
+         // Показываем оригинал, чтобы исключить артефакты конверсий
+         mainImage.src = imagesData[currentIndex].original || imagesData[currentIndex].preview;
       }
 
       // Обновить модальное изображение
       function updateModalImage() {
-         modalImage.src = imagesData[currentIndex].preview;
+         // В полноэкранной галерее показываем оригинал без сжатия для максимального качества
+         modalImage.src = imagesData[currentIndex].original || imagesData[currentIndex].preview;
          document.getElementById('imageCounter').textContent = `${currentIndex + 1} / ${imagesData.length}`;
          indicators.style.display = imagesData.length > 1 ? 'block' : 'none';
       }

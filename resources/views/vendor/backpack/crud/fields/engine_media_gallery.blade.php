@@ -38,8 +38,9 @@
             <div class="col-md-3 col-sm-4 col-xs-6 mb-2 media-item" data-media-id="{{ $media->id }}"
                data-engine-id="{{ $engineId }}">
                <div class="position-relative">
+                  {{-- В админке показываем изображение без сильного кропа, ближе к исходным пропорциям --}}
                   <img src="{{ $media->getUrl('thumb') }}" alt="{{ $media->name }}" class="img-thumbnail img-fluid"
-                     style="max-height: 150px; width: 100%; object-fit: cover;">
+                     style="max-height: 150px; width: 100%; object-fit: contain; background-color: #f8f9fa;">
                   <button type="button" class="btn btn-sm btn-danger delete-media-btn position-absolute top-0 end-0 m-1"
                      title="Удалить изображение">
                      <i class="la la-trash"></i>
@@ -241,7 +242,8 @@
                            .attr('data-media-type', media.type || 'uploaded')
                            .html(
                               '<div class="position-relative">' +
-                                 '<img src="' + media.thumb + '" alt="' + media.name + '" class="img-thumbnail img-fluid" style="max-height: 150px; width: 100%; object-fit: cover;">' +
+                                 // В списке после обновления также используем object-fit: contain, чтобы не было сильного зума
+                                 '<img src="' + media.thumb + '" alt="' + media.name + '" class="img-thumbnail img-fluid" style="max-height: 150px; width: 100%; object-fit: contain; background-color: #f8f9fa;">' +
                                  deleteButton +
                               '</div>' +
                               '<small class="text-muted d-block text-truncate mt-1">' + media.name + '</small>'

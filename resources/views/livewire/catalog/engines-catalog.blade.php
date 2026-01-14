@@ -3,7 +3,7 @@
     <div class="row mb-4 g-3 align-items-end">
         <div class="col-md-3">
             <label class="form-label fw-semibold">Бренд</label>
-            <select class="form-select" wire:model="brand">
+            <select class="form-select rounded-3 border-1" wire:model="brand">
                 <option value="">Все бренды</option>
                 @foreach(\App\Models\Engine::select('brand')->distinct()->pluck('brand') as $b)
                     <option value="{{ $b }}">{{ $b }}</option>
@@ -13,12 +13,12 @@
 
         <div class="col-md-3">
             <label class="form-label fw-semibold">Цена от</label>
-            <input type="number" wire:model="price_from" class="form-control" placeholder="0">
+            <input type="number" wire:model="price_from" class="form-control rounded-3 border-1" placeholder="0">
         </div>
 
         <div class="col-md-3">
             <label class="form-label fw-semibold">Цена до</label>
-            <input type="number" wire:model="price_to" class="form-control" placeholder="100000">
+            <input type="number" wire:model="price_to" class="form-control rounded-3 border-1" placeholder="100000">
         </div>
 
         <div class="col-md-3 d-flex flex-column gap-2">
