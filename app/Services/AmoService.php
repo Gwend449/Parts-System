@@ -4,6 +4,8 @@ namespace App\Services;
 
 use AmoCRM\Client\AmoCRMApiClient;
 use App\Models\AmocrmToken;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AmoService
 {
@@ -16,35 +18,87 @@ class AmoService
     }
 
     /**
-     * Инициализация клиента с приватным токеном
+     * Инициализация клиента с OAuth токеном из БД
      */
     protected function initClient(): void
     {
-        $privateToken = config('amocrm.private_token');
         $subdomain = config('amocrm.subdomain');
-
-        if (!$privateToken || !$subdomain) {
-            throw new \Exception('amoCRM не сконфигурирована (private_token или subdomain не установлены)');
+        
+        if (!$subdomain) {
+            throw new \Exception('amoCRM не сконфигурирована (subdomain не установлен)');
         }
 
-        // Для приватной интеграции просто устанавливаем токен и домен
-        $this->client
-            ->setAccessToken($privateToken)
-            ->setAccountBaseDomain($subdomain . '.amocrm.ru');
+        // Получаем токен из БД
+        $token = AmocrmToken::where('domain', $subdomain)->first();
 
-        // Опционально: сохраняем информацию о подключении в БД
-        AmocrmToken::updateOrCreate(
-            ['domain' => $subdomain],
-            [
-                'access_token' => $privateToken,
-                'refresh_token' => null,
-                'expires_at' => null, // У приватных токенов нет срока действия
-                'raw' => [
-                    'type' => 'private',
-                    'initialized_at' => now(),
-                ],
-            ]
-        );
+        if (!$token || !$token->access_token) {
+            throw new \Exception('amoCRM не авторизована. Перейдите по ссылке: ' . route('amocrm.install'));
+        }
+
+        // Проверяем не истек ли токен (с запасом 5 минут)
+        if ($token->expires_at && $token->expires_at->subMinutes(5)->isPast()) {
+            $this->refreshToken($token);
+            // Перезагружаем токен из БД после обновления
+            $token->refresh();
+        }
+
+        // Устанавливаем токен и домен в клиент
+        $this->client
+            ->setAccessToken($token->access_token)
+            ->setAccountBaseDomain($subdomain . '.amocrm.ru');
+    }
+
+    /**
+     * Обновить access_token используя refresh_token
+     */
+    protected function refreshToken(AmocrmToken $token): void
+    {
+        if (!$token->refresh_token) {
+            throw new \Exception('Не удалось обновить токен: refresh_token отсутствует. Требуется переавторизация.');
+        }
+
+        $clientId = config('amocrm.client_id');
+        $clientSecret = config('amocrm.client_secret');
+        $subdomain = config('amocrm.subdomain');
+
+        if (!$clientId || !$clientSecret || !$subdomain) {
+            throw new \Exception('amoCRM не сконфигурирована для обновления токена (client_id, client_secret или subdomain не установлены)');
+        }
+
+        try {
+            $response = Http::post("https://{$subdomain}.amocrm.ru/oauth2/access_token", [
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $token->refresh_token,
+                'redirect_uri' => config('amocrm.redirect_uri'),
+            ]);
+
+            if (!$response->successful()) {
+                throw new \Exception('Ошибка обновления токена: ' . $response->body());
+            }
+
+            $data = $response->json();
+            
+            // Сохраняем обновленный токен
+            $token->update([
+                'access_token' => $data['access_token'],
+                'refresh_token' => $data['refresh_token'],
+                'expires_at' => now()->addSeconds($data['expires_in']),
+                'raw' => $data,
+            ]);
+
+            Log::info('AmoCRM токен успешно обновлен', [
+                'domain' => $subdomain,
+                'expires_at' => $token->expires_at,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Ошибка обновления AmoCRM токена', [
+                'error' => $e->getMessage(),
+                'domain' => $subdomain,
+            ]);
+            throw $e;
+        }
     }
 
     /**

@@ -32,9 +32,10 @@ Route::get('/contacts', function () {
 Route::get('/engine/{slug}', [EngineController::class, 'show'])
     ->name('engine.show');
 
-// amocrm - приватная интеграция
+// amocrm - публичная интеграция (OAuth 2.0)
 Route::group(['prefix' => 'amocrm'], function () {
     Route::get('/install', [AmoAuthController::class, 'install'])->name('amocrm.install');
+    Route::get('/callback', [AmoAuthController::class, 'callback'])->name('amocrm.callback');
 });
 
 // Обработка форм
