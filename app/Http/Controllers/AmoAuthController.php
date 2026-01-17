@@ -28,13 +28,23 @@ class AmoAuthController extends Controller
 
         // Формируем URL для авторизации
         // redirect_uri должен быть закодирован в URL и точно совпадать с настройками в AmoCRM
-        $redirectUriEncoded = urlencode($redirectUri);
-        $authUrl = "https://{$subdomain}.amocrm.ru/oauth?client_id={$clientId}&state={$state}&redirect_uri={$redirectUriEncoded}";
+        // Используем http_build_query для правильного кодирования параметров
+        $params = [
+            'client_id' => $clientId,
+            'state' => $state,
+            'redirect_uri' => $redirectUri, // http_build_query автоматически закодирует
+        ];
+        
+        $queryString = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+        $authUrl = "https://{$subdomain}.amocrm.ru/oauth?{$queryString}";
 
         Log::info('AmoCRM OAuth: перенаправление на авторизацию', [
             'auth_url' => $authUrl,
             'redirect_uri' => $redirectUri,
+            'redirect_uri_encoded' => rawurlencode($redirectUri),
             'subdomain' => $subdomain,
+            'client_id' => $clientId,
+            'params' => $params,
         ]);
 
         return redirect($authUrl);
