@@ -23,7 +23,6 @@ class AmoAuthController extends Controller
                 ->with('error', 'amoCRM не сконфигурирована. Проверьте настройки в .env файле (AMO_CLIENT_ID, AMO_CLIENT_SECRET, AMO_REDIRECT_URI, AMOCRM_SUBDOMAIN)');
         }
 
-        // Генерируем state для безопасности (защита от CSRF)
         $state = bin2hex(random_bytes(16));
         session(['amocrm_oauth_state' => $state]);
 
@@ -33,9 +32,6 @@ class AmoAuthController extends Controller
         return redirect($authUrl);
     }
 
-    /**
-     * Callback для получения кода авторизации и обмена на токен
-     */
     public function callback(Request $request)
     {
         try {
