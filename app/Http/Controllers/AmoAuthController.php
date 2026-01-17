@@ -20,14 +20,22 @@ class AmoAuthController extends Controller
 
         if (!$clientId || !$redirectUri || !$subdomain) {
             return redirect('/')
-                ->with('error', 'amoCRM не сконфигурирована. Проверьте настройки в .env файле (AMO_CLIENT_ID, AMO_CLIENT_SECRET, AMO_REDIRECT_URI, AMOCRM_SUBDOMAIN)');
+                ->with('error', 'amoCRM не сконфигурирована. Проверьте настройки в .env файле (AMOCRM_CLIENT_ID, AMOCRM_CLIENT_SECRET, AMOCRM_REDIRECT_URI, AMOCRM_SUBDOMAIN)');
         }
 
         $state = bin2hex(random_bytes(16));
         session(['amocrm_oauth_state' => $state]);
 
         // Формируем URL для авторизации
-        $authUrl = "https://{$subdomain}.amocrm.ru/oauth?client_id={$clientId}&state={$state}&mode=post_message";
+        // redirect_uri должен быть закодирован в URL и точно совпадать с настройками в AmoCRM
+        $redirectUriEncoded = urlencode($redirectUri);
+        $authUrl = "https://{$subdomain}.amocrm.ru/oauth?client_id={$clientId}&state={$state}&redirect_uri={$redirectUriEncoded}";
+
+        Log::info('AmoCRM OAuth: перенаправление на авторизацию', [
+            'auth_url' => $authUrl,
+            'redirect_uri' => $redirectUri,
+            'subdomain' => $subdomain,
+        ]);
 
         return redirect($authUrl);
     }
