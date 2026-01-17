@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Models\AmocrmToken;
 
 class AmoAuthController extends Controller
@@ -24,7 +25,16 @@ class AmoAuthController extends Controller
         }
 
         $state = bin2hex(random_bytes(16));
+        
+        // Сохраняем state в сессию
         session(['amocrm_oauth_state' => $state]);
+        
+        // Также сохраняем в кеш как резервный вариант (TTL 10 минут)
+        // Это поможет, если cookies не передаются между доменами
+        Cache::put("amocrm_oauth_state_{$state}", $state, now()->addMinutes(10));
+        
+        // Явно сохраняем сессию перед редиректом, чтобы state был доступен после возврата
+        session()->save();
 
         // Формируем URL для авторизации
         // redirect_uri должен быть закодирован в URL и точно совпадать с настройками в AmoCRM
@@ -44,6 +54,8 @@ class AmoAuthController extends Controller
             'redirect_uri_encoded' => rawurlencode($redirectUri),
             'subdomain' => $subdomain,
             'client_id' => $clientId,
+            'state' => $state,
+            'session_id' => session()->getId(),
             'params' => $params,
         ]);
 
@@ -54,20 +66,44 @@ class AmoAuthController extends Controller
     {
         try {
             // Проверяем state для защиты от CSRF
-            $sessionState = session('amocrm_oauth_state');
             $requestState = $request->input('state');
+            $sessionState = session('amocrm_oauth_state');
+            
+            // Если state нет в сессии, пытаемся получить из кеша (резервный вариант)
+            $cachedState = null;
+            if ($requestState) {
+                $cachedState = Cache::get("amocrm_oauth_state_{$requestState}");
+            }
 
-            if (!$sessionState || $sessionState !== $requestState) {
+            Log::info('AmoCRM OAuth: callback получен', [
+                'session_state' => $sessionState,
+                'request_state' => $requestState,
+                'cached_state' => $cachedState,
+                'session_id' => session()->getId(),
+                'has_state_in_session' => session()->has('amocrm_oauth_state'),
+            ]);
+
+            // Проверяем state из сессии или кеша
+            $validState = ($sessionState && $sessionState === $requestState) || 
+                         ($cachedState && $cachedState === $requestState);
+
+            if (!$validState || !$requestState) {
                 Log::warning('AmoCRM OAuth: неверный state параметр', [
                     'session_state' => $sessionState,
                     'request_state' => $requestState,
+                    'cached_state' => $cachedState,
+                    'session_id' => session()->getId(),
+                    'session_data' => session()->all(),
                 ]);
                 return redirect('/')
                     ->with('error', 'Ошибка безопасности при авторизации. Попробуйте еще раз.');
             }
 
-            // Удаляем state из сессии
+            // Удаляем state из сессии и кеша
             session()->forget('amocrm_oauth_state');
+            if ($requestState) {
+                Cache::forget("amocrm_oauth_state_{$requestState}");
+            }
 
             $code = $request->input('code');
             if (!$code) {
