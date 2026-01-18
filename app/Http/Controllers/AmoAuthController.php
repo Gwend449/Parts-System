@@ -37,7 +37,7 @@ class AmoAuthController extends Controller
                     'redirect_uri' => !!$redirectUri,
                     'subdomain' => !!$subdomain,
                 ]);
-                
+
                 return redirect('/')
                     ->with('error', 'amoCRM не сконфигурирована. Проверьте настройки в .env файле (AMOCRM_CLIENT_ID, AMOCRM_CLIENT_SECRET, AMOCRM_REDIRECT_URI, AMOCRM_SUBDOMAIN)');
             }
@@ -58,7 +58,7 @@ class AmoAuthController extends Controller
                 'state' => $state,
                 'redirect_uri' => $redirectUri,
             ];
-            
+
             // Используем http_build_query с правильной кодировкой
             $queryString = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
             $authUrl = "https://{$subdomain}.amocrm.ru/oauth?{$queryString}";
@@ -107,12 +107,12 @@ class AmoAuthController extends Controller
             if ($request->has('error')) {
                 $error = $request->input('error');
                 $errorDescription = $request->input('error_description', 'Неизвестная ошибка');
-                
+
                 Log::error('AmoCRM OAuth: ошибка от AmoCRM', [
                     'error' => $error,
                     'error_description' => $errorDescription,
                 ]);
-                
+
                 return redirect('/')
                     ->with('error', "Ошибка авторизации AmoCRM: {$errorDescription}");
             }
@@ -120,7 +120,7 @@ class AmoAuthController extends Controller
             // Проверяем state для защиты от CSRF
             // State хранится в БД, а не в сессии (более надежно)
             $requestState = $request->input('state');
-            
+
             if (!$requestState) {
                 Log::error('AmoCRM OAuth: state параметр не получен');
                 return redirect('/')
@@ -129,7 +129,7 @@ class AmoAuthController extends Controller
 
             // Проверяем state в БД и удаляем его
             $stateRecord = AmocrmOauthState::verifyAndDelete($requestState);
-            
+
             if (!$stateRecord) {
                 Log::warning('AmoCRM OAuth: неверный или устаревший state параметр', [
                     'request_state' => $requestState,
@@ -185,13 +185,13 @@ class AmoAuthController extends Controller
             if (!$response->successful()) {
                 $status = $response->status();
                 $errorBody = $response->body();
-                
+
                 Log::error('AmoCRM OAuth: ошибка обмена кода на токен', [
                     'status' => $status,
                     'body' => $errorBody,
                     'headers' => $response->headers(),
                 ]);
-                
+
                 return redirect('/')
                     ->with('error', "Ошибка при получении токена (HTTP {$status}): {$errorBody}");
             }
