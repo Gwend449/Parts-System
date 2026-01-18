@@ -4,9 +4,22 @@
 .env
 .env.*
 docker-compose.yml
+docker-compose.*.yml
 .DS_Store
 *.log
 node_modules
+
+# Vendor будет установлен через composer install в Dockerfile
+vendor
+
+# Storage директории - будут монтироваться как volumes
+storage/app/public/*
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Public директории
 public/vendor
 public/node_modules
 public/public/build
@@ -15,3 +28,9 @@ public/public/storage
 public/storage/pail
 public/bootstrap/cache/*
 public/storage/logs/*
+
+# Документация и временные файлы
+*.md
+docs/
+tests/
+.phpunit.result.cache
