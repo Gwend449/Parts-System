@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\AmocrmToken;
+use App\Models\AmocrmOauthState;
 
 class AmoAuthController extends Controller
 {
@@ -17,41 +18,70 @@ class AmoAuthController extends Controller
      */
     public function install()
     {
-        $clientId = config('amocrm.client_id');
-        $redirectUri = config('amocrm.redirect_uri');
-        $subdomain = config('amocrm.subdomain');
+        try {
+            $clientId = config('amocrm.client_id');
+            $redirectUri = config('amocrm.redirect_uri');
+            $subdomain = config('amocrm.subdomain');
 
-        if (!$clientId || !$redirectUri || !$subdomain) {
+            Log::info('AmoCRM OAuth: запрос на авторизацию', [
+                'has_client_id' => !!$clientId,
+                'has_redirect_uri' => !!$redirectUri,
+                'has_subdomain' => !!$subdomain,
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            if (!$clientId || !$redirectUri || !$subdomain) {
+                Log::warning('AmoCRM OAuth: неполная конфигурация', [
+                    'client_id' => !!$clientId,
+                    'redirect_uri' => !!$redirectUri,
+                    'subdomain' => !!$subdomain,
+                ]);
+                
+                return redirect('/')
+                    ->with('error', 'amoCRM не сконфигурирована. Проверьте настройки в .env файле (AMOCRM_CLIENT_ID, AMOCRM_CLIENT_SECRET, AMOCRM_REDIRECT_URI, AMOCRM_SUBDOMAIN)');
+            }
+
+            // Генерируем и сохраняем state в БД для защиты от CSRF
+            // Используем БД вместо сессии, так как это надежнее при HTTPS и редиректах между доменами
+            $state = AmocrmOauthState::generateState($subdomain);
+
+            Log::debug('AmoCRM OAuth: state сгенерирован', [
+                'state_length' => strlen($state),
+                'subdomain' => $subdomain,
+            ]);
+
+            // Формируем URL для авторизации согласно документации AmoCRM
+            // URL должен быть: https://{subdomain}.amocrm.ru/oauth?client_id={client_id}&state={state}&redirect_uri={redirect_uri}
+            $params = [
+                'client_id' => $clientId,
+                'state' => $state,
+                'redirect_uri' => $redirectUri,
+            ];
+            
+            // Используем http_build_query с правильной кодировкой
+            $queryString = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+            $authUrl = "https://{$subdomain}.amocrm.ru/oauth?{$queryString}";
+
+            Log::info('AmoCRM OAuth: перенаправление на авторизацию', [
+                'auth_url' => $authUrl,
+                'redirect_uri' => $redirectUri,
+                'subdomain' => $subdomain,
+                'client_id' => $clientId,
+                'state' => $state,
+            ]);
+
+            return redirect($authUrl);
+
+        } catch (\Exception $e) {
+            Log::error('AmoCRM OAuth install error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return redirect('/')
-                ->with('error', 'amoCRM не сконфигурирована. Проверьте настройки в .env файле (AMOCRM_CLIENT_ID, AMOCRM_CLIENT_SECRET, AMOCRM_REDIRECT_URI, AMOCRM_SUBDOMAIN)');
+                ->with('error', 'Ошибка при инициировании авторизации AmoCRM: ' . $e->getMessage());
         }
-
-        // Генерируем state для защиты от CSRF
-        $state = bin2hex(random_bytes(16));
-        session(['amocrm_oauth_state' => $state]);
-        session()->save();
-
-        // Формируем URL для авторизации согласно документации AmoCRM
-        // URL должен быть: https://{subdomain}.amocrm.ru/oauth?client_id={client_id}&state={state}&redirect_uri={redirect_uri}
-        $params = [
-            'client_id' => $clientId,
-            'state' => $state,
-            'redirect_uri' => $redirectUri,
-        ];
-        
-        // Используем http_build_query с правильной кодировкой
-        $queryString = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
-        $authUrl = "https://{$subdomain}.amocrm.ru/oauth?{$queryString}";
-
-        Log::info('AmoCRM OAuth: перенаправление на авторизацию', [
-            'auth_url' => $authUrl,
-            'redirect_uri' => $redirectUri,
-            'subdomain' => $subdomain,
-            'client_id' => $clientId,
-            'state' => $state,
-        ]);
-
-        return redirect($authUrl);
     }
 
     /**
@@ -88,20 +118,25 @@ class AmoAuthController extends Controller
             }
 
             // Проверяем state для защиты от CSRF
+            // State хранится в БД, а не в сессии (более надежно)
             $requestState = $request->input('state');
-            $sessionState = session('amocrm_oauth_state');
+            
+            if (!$requestState) {
+                Log::error('AmoCRM OAuth: state параметр не получен');
+                return redirect('/')
+                    ->with('error', 'Ошибка: state параметр не получен.');
+            }
 
-            if (!$requestState || !$sessionState || $sessionState !== $requestState) {
-                Log::warning('AmoCRM OAuth: неверный state параметр', [
-                    'session_state' => $sessionState,
+            // Проверяем state в БД и удаляем его
+            $stateRecord = AmocrmOauthState::verifyAndDelete($requestState);
+            
+            if (!$stateRecord) {
+                Log::warning('AmoCRM OAuth: неверный или устаревший state параметр', [
                     'request_state' => $requestState,
                 ]);
                 return redirect('/')
-                    ->with('error', 'Ошибка безопасности при авторизации. Попробуйте еще раз.');
+                    ->with('error', 'Ошибка безопасности при авторизации. State параметр истек или неверен. Попробуйте еще раз.');
             }
-
-            // Удаляем state из сессии
-            session()->forget('amocrm_oauth_state');
 
             // Получаем код авторизации
             $code = $request->input('code');
@@ -111,10 +146,10 @@ class AmoAuthController extends Controller
                     ->with('error', 'Код авторизации не получен. Попробуйте еще раз.');
             }
 
-            // Получаем referer (subdomain) из параметров или используем из конфига
+            // Получаем referer (subdomain) из параметров или используем сохраненный в stateRecord
             // Согласно документации, AmoCRM может передать referer в параметрах
             $referer = $request->input('referer');
-            $subdomain = $referer ?: config('amocrm.subdomain');
+            $subdomain = $referer ?: ($stateRecord->subdomain ?? config('amocrm.subdomain'));
 
             if (!$subdomain) {
                 Log::error('AmoCRM OAuth: subdomain не определен');
