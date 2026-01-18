@@ -57,6 +57,7 @@ class AmoAuthController extends Controller
                 'client_id' => $clientId,
                 'state' => $state,
                 'redirect_uri' => $redirectUri,
+                'response_type' => 'code',
             ];
 
             // Используем http_build_query с правильной кодировкой
