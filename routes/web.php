@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 use App\Http\Controllers\EngineController;
 use App\Http\Controllers\AmoAuthController;
@@ -36,6 +37,19 @@ Route::get('/engine/{slug}', [EngineController::class, 'show'])
 Route::group(['prefix' => 'amocrm'], function () {
     Route::get('/install', [AmoAuthController::class, 'install'])->name('amocrm.install');
     Route::get('/callback', [AmoAuthController::class, 'callback'])->name('amocrm.callback');
+
+    // Debug route - логирует все запросы к /amocrm/callback
+    Route::any('/callback-debug', function (Request $request) {
+        \Log::info('AmoCRM CALLBACK DEBUG', [
+            'method' => $request->method(),
+            'all_params' => $request->all(),
+            'url' => $request->url(),
+            'query_string' => $request->getQueryString(),
+            'headers' => $request->headers->all(),
+            'ip' => $request->ip(),
+        ]);
+        return response()->json(['status' => 'logged', 'timestamp' => now()]);
+    });
 });
 
 // Обработка форм
