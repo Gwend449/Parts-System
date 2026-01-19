@@ -473,7 +473,8 @@ class AmoService
                 }
             }
 
-            $this->client->notes()->addOne($note);
+            // Метод notes() требует ID сущности (leadId) в качестве аргумента
+            $this->client->notes($leadId)->addOne($note);
 
             Log::info('Примечание успешно добавлено к лиду', [
                 'lead_id' => $leadId,
