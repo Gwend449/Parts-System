@@ -240,14 +240,18 @@ class AmoService
             $contact = new \AmoCRM\Models\ContactModel();
             $contact->setFirstName($name);
 
-            // Добавляем телефон и email через CustomFieldsValuesCollection
-            // В AmoCRM SDK для публичной интеграции нужно использовать правильные методы
-            try {
-                $customFieldsValues = new \AmoCRM\Collections\CustomFieldsValuesCollection();
-                
-                // Добавляем телефон
+            // Получаем ID стандартных полей для телефона и email
+            $phoneFieldId = $this->getStandardFieldId('PHONE');
+            $emailFieldId = $this->getStandardFieldId('EMAIL');
+
+            // Добавляем телефон и email через CustomFieldsValues
+            $customFieldsValues = new \AmoCRM\Collections\CustomFieldsValuesCollection();
+            
+            // Добавляем телефон
+            if ($phoneFieldId) {
                 $phoneField = new \AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel();
-                $phoneField->setFieldId('PHONE'); // Стандартное поле телефона
+                $phoneField->setFieldId($phoneFieldId);
+                
                 $phoneValues = new \AmoCRM\Collections\CustomFields\CustomFieldEnumsCollection();
                 $phoneValue = new \AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueModel();
                 $phoneValue->setValue($phone);
@@ -255,42 +259,24 @@ class AmoService
                 $phoneValues->add($phoneValue);
                 $phoneField->setValues($phoneValues);
                 $customFieldsValues->add($phoneField);
+            }
 
-                // Добавляем email если указан
-                if ($email) {
-                    $emailField = new \AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel();
-                    $emailField->setFieldId('EMAIL'); // Стандартное поле email
-                    $emailValues = new \AmoCRM\Collections\CustomFields\CustomFieldEnumsCollection();
-                    $emailValue = new \AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueModel();
-                    $emailValue->setValue($email);
-                    $emailValue->setEnum('WORK');
-                    $emailValues->add($emailValue);
-                    $emailField->setValues($emailValues);
-                    $customFieldsValues->add($emailField);
-                }
-
-                $contact->setCustomFieldsValues($customFieldsValues);
-            } catch (\Exception $phoneException) {
-                // Если не удалось добавить через CustomFieldsValues, пробуем упрощенный способ
-                Log::warning('Не удалось добавить телефон/email через CustomFieldsValues', [
-                    'error' => $phoneException->getMessage(),
-                    'phone' => $phone,
-                    'email' => $email,
-                ]);
+            // Добавляем email если указан
+            if ($email && $emailFieldId) {
+                $emailField = new \AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel();
+                $emailField->setFieldId($emailFieldId);
                 
-                // Пробуем альтернативный способ - через встроенные методы если доступны
-                try {
-                    if (method_exists($contact, 'setPhone')) {
-                        $contact->setPhone($phone);
-                    }
-                    if ($email && method_exists($contact, 'setEmail')) {
-                        $contact->setEmail($email);
-                    }
-                } catch (\Exception $altException) {
-                    Log::debug('Альтернативные методы также не сработали', [
-                        'error' => $altException->getMessage(),
-                    ]);
-                }
+                $emailValues = new \AmoCRM\Collections\CustomFields\CustomFieldEnumsCollection();
+                $emailValue = new \AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueModel();
+                $emailValue->setValue($email);
+                $emailValue->setEnum('WORK');
+                $emailValues->add($emailValue);
+                $emailField->setValues($emailValues);
+                $customFieldsValues->add($emailField);
+            }
+
+            if ($customFieldsValues->count() > 0) {
+                $contact->setCustomFieldsValues($customFieldsValues);
             }
 
             $response = $this->client->api()->contacts()->addOne($contact);
@@ -302,6 +288,85 @@ class AmoService
                 'name' => $name,
                 'phone' => $phone,
                 'email' => $email,
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Получить ID стандартного поля контакта (PHONE или EMAIL)
+     * Использует кеш, чтобы не делать лишние запросы к API
+     */
+    private function getStandardFieldId(string $fieldCode): ?int
+    {
+        static $cache = [];
+        
+        if (isset($cache[$fieldCode])) {
+            return $cache[$fieldCode];
+        }
+
+        try {
+            // Получаем информацию о стандартных полях контактов через API
+            // В AmoCRM SDK поля получаются для конкретного типа сущности
+            $fieldsCollection = $this->client->api()->customFields()->get('contacts');
+            
+            // Ищем поле по коду
+            if ($fieldsCollection && method_exists($fieldsCollection, 'all')) {
+                $fields = $fieldsCollection->all();
+                
+                foreach ($fields as $field) {
+                    // Стандартные поля имеют определенные коды
+                    if (method_exists($field, 'getCode') && $field->getCode() === $fieldCode) {
+                        $fieldId = method_exists($field, 'getId') ? $field->getId() : null;
+                        if ($fieldId) {
+                            $cache[$fieldCode] = $fieldId;
+                            return $fieldId;
+                        }
+                    }
+                }
+                
+                // Если не нашли через код, ищем по типу и имени
+                foreach ($fields as $field) {
+                    $fieldName = method_exists($field, 'getName') ? strtolower($field->getName()) : '';
+                    $fieldType = method_exists($field, 'getType') ? $field->getType() : '';
+                    $fieldCodeFromApi = method_exists($field, 'getCode') ? $field->getCode() : '';
+                    
+                    if ($fieldCode === 'PHONE' && (
+                        $fieldCodeFromApi === 'PHONE' ||
+                        stripos($fieldName, 'телефон') !== false || 
+                        stripos($fieldName, 'phone') !== false ||
+                        $fieldType === 'PHONE' ||
+                        strtolower($fieldType) === 'multitext'
+                    )) {
+                        $fieldId = method_exists($field, 'getId') ? $field->getId() : null;
+                        if ($fieldId) {
+                            $cache[$fieldCode] = $fieldId;
+                            return $fieldId;
+                        }
+                    }
+                    
+                    if ($fieldCode === 'EMAIL' && (
+                        $fieldCodeFromApi === 'EMAIL' ||
+                        stripos($fieldName, 'email') !== false ||
+                        stripos($fieldName, 'почта') !== false ||
+                        $fieldType === 'EMAIL' ||
+                        strtolower($fieldType) === 'multitext'
+                    )) {
+                        $fieldId = method_exists($field, 'getId') ? $field->getId() : null;
+                        if ($fieldId) {
+                            $cache[$fieldCode] = $fieldId;
+                            return $fieldId;
+                        }
+                    }
+                }
+            }
+            
+            Log::warning("Не удалось найти ID стандартного поля {$fieldCode} через API, будет использован упрощенный подход");
+            // Возвращаем null - в этом случае попробуем создать контакт без этих полей
+            return null;
+        } catch (\Exception $e) {
+            Log::warning("Ошибка при получении ID стандартного поля {$fieldCode}", [
+                'error' => $e->getMessage(),
             ]);
             return null;
         }
