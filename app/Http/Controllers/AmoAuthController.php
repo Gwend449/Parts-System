@@ -97,12 +97,19 @@ class AmoAuthController extends Controller
     public function callback(Request $request)
     {
         try {
+            // Детальное логирование для отладки
             Log::info('AmoCRM OAuth: callback получен', [
+                'method' => $request->method(),
+                'url' => $request->fullUrl(),
                 'all_params' => $request->all(),
+                'query_params' => $request->query(),
                 'referer' => $request->input('referer'),
-                'code' => $request->has('code'),
+                'code' => $request->input('code'),
+                'code_exists' => $request->has('code'),
                 'state' => $request->input('state'),
                 'error' => $request->input('error'),
+                'error_description' => $request->input('error_description'),
+                'headers' => $request->headers->all(),
             ]);
 
             // Проверяем наличие ошибки от AmoCRM
@@ -149,15 +156,35 @@ class AmoAuthController extends Controller
             }
 
             // Получаем referer (subdomain) из параметров или используем сохраненный в stateRecord
-            // Согласно документации, AmoCRM может передать referer в параметрах
-            $referer = $request->input('referer');
+            // Для приватных интеграций AmoCRM может передать referer в параметрах или в заголовках
+            $referer = $request->input('referer') 
+                ?? $request->header('Referer')
+                ?? $request->input('account')
+                ?? null;
+            
+            // Если referer это полный URL, извлекаем subdomain
+            if ($referer && strpos($referer, '.amocrm.ru') !== false) {
+                $referer = preg_replace('/^https?:\/\/([^.]+)\.amocrm\.ru.*/', '$1', $referer);
+            }
+            
             $subdomain = $referer ?: ($stateRecord->subdomain ?? config('amocrm.subdomain'));
 
             if (!$subdomain) {
-                Log::error('AmoCRM OAuth: subdomain не определен');
+                Log::error('AmoCRM OAuth: subdomain не определен', [
+                    'referer_param' => $request->input('referer'),
+                    'referer_header' => $request->header('Referer'),
+                    'account_param' => $request->input('account'),
+                    'state_record_subdomain' => $stateRecord->subdomain ?? null,
+                    'config_subdomain' => config('amocrm.subdomain'),
+                ]);
                 return redirect('/')
-                    ->with('error', 'Ошибка: не удалось определить поддомен AmoCRM.');
+                    ->with('error', 'Ошибка: не удалось определить поддомен AmoCRM. Проверьте логи.');
             }
+            
+            Log::info('AmoCRM OAuth: subdomain определен', [
+                'subdomain' => $subdomain,
+                'source' => $referer ? 'referer' : ($stateRecord->subdomain ? 'state_record' : 'config'),
+            ]);
 
             $clientId = config('amocrm.client_id');
             $clientSecret = config('amocrm.client_secret');
@@ -213,7 +240,7 @@ class AmoAuthController extends Controller
             $baseDomain = $subdomain;
 
             // Сохраняем токен в БД
-            AmocrmToken::updateOrCreate(
+            $token = AmocrmToken::updateOrCreate(
                 ['domain' => $baseDomain],
                 [
                     'access_token' => $data['access_token'],
@@ -225,8 +252,22 @@ class AmoAuthController extends Controller
 
             Log::info('AmoCRM успешно авторизована', [
                 'domain' => $baseDomain,
-                'expires_at' => now()->addSeconds($data['expires_in'] ?? 86400),
+                'token_id' => $token->id,
+                'access_token_preview' => substr($data['access_token'], 0, 20) . '...',
+                'expires_at' => $token->expires_at->format('Y-m-d H:i:s'),
+                'expires_in_seconds' => $data['expires_in'] ?? 86400,
             ]);
+            
+            // Проверяем, что токен действительно сохранился
+            $savedToken = AmocrmToken::where('domain', $baseDomain)->first();
+            if (!$savedToken || !$savedToken->access_token) {
+                Log::error('AmoCRM OAuth: токен не сохранился в БД!', [
+                    'domain' => $baseDomain,
+                    'token_exists' => !!$savedToken,
+                ]);
+                return redirect('/')
+                    ->with('error', 'Ошибка: токен не был сохранен. Проверьте логи.');
+            }
 
             return redirect('/')
                 ->with('success', 'amoCRM успешно подключена!');
