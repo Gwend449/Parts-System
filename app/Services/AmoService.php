@@ -259,12 +259,14 @@ class AmoService
                 $phoneField = new \AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel();
                 $phoneField->setFieldId($phoneFieldId);
                 
-                $phoneValues = new \AmoCRM\Collections\CustomFields\CustomFieldEnumsCollection();
-                $phoneValue = new \AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueModel();
-                $phoneValue->setValue($phone);
-                $phoneValue->setEnum('WORK');
-                $phoneValues->add($phoneValue);
-                $phoneField->setValues($phoneValues);
+                $phoneField->setValues(
+                    (new \AmoCRM\Models\CustomFieldsValues\ValueCollections\MultitextCustomFieldValueCollection())
+                        ->add(
+                            (new \AmoCRM\Models\CustomFieldsValues\ValueModels\MultitextCustomFieldValueModel())
+                                ->setEnum('WORK')
+                                ->setValue($phone)
+                        )
+                );
                 $customFieldsValues->add($phoneField);
             }
 
@@ -273,12 +275,14 @@ class AmoService
                 $emailField = new \AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel();
                 $emailField->setFieldId($emailFieldId);
                 
-                $emailValues = new \AmoCRM\Collections\CustomFields\CustomFieldEnumsCollection();
-                $emailValue = new \AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueModel();
-                $emailValue->setValue($email);
-                $emailValue->setEnum('WORK');
-                $emailValues->add($emailValue);
-                $emailField->setValues($emailValues);
+                $emailField->setValues(
+                    (new \AmoCRM\Models\CustomFieldsValues\ValueCollections\MultitextCustomFieldValueCollection())
+                        ->add(
+                            (new \AmoCRM\Models\CustomFieldsValues\ValueModels\MultitextCustomFieldValueModel())
+                                ->setEnum('WORK')
+                                ->setValue($email)
+                        )
+                );
                 $customFieldsValues->add($emailField);
             }
 
