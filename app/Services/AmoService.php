@@ -6,6 +6,7 @@ use AmoCRM\Client\AmoCRMApiClient;
 use App\Models\AmocrmToken;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use League\OAuth2\Client\Token\AccessToken;
 
 class AmoService
 {
@@ -42,9 +43,25 @@ class AmoService
             $token->refresh();
         }
 
+        // Создаем объект AccessToken для SDK
+        $accessTokenData = [
+            'access_token' => $token->access_token,
+            'refresh_token' => $token->refresh_token,
+        ];
+
+        // Добавляем expires_in если есть expires_at
+        if ($token->expires_at) {
+            $expiresIn = $token->expires_at->diffInSeconds(now());
+            if ($expiresIn > 0) {
+                $accessTokenData['expires_in'] = $expiresIn;
+            }
+        }
+
+        $accessToken = new AccessToken($accessTokenData);
+
         // Устанавливаем токен и домен в клиент
         $this->client
-            ->setAccessToken($token->access_token)
+            ->setAccessToken($accessToken)
             ->setAccountBaseDomain($subdomain . '.amocrm.ru');
     }
 
