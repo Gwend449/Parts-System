@@ -28,6 +28,7 @@ class FormSubmissionController extends Controller
          $leadId = $this->amoService->sendLead(
             name: $validated['name'],
             phone: $validated['phone'],
+            email: $validated['email'] ?? null,
             brand: $validated['brand'] ?? null,
             model: $validated['model'] ?? null,
             comment: $validated['message'] ?? $validated['comment'] ?? null,
@@ -37,6 +38,7 @@ class FormSubmissionController extends Controller
          Log::info('Форма контактов успешно отправлена в amoCRM', [
             'lead_id' => $leadId,
             'name' => $validated['name'],
+            'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'],
             'timestamp' => now(),
          ]);
@@ -73,6 +75,7 @@ class FormSubmissionController extends Controller
          $leadId = $this->amoService->sendLead(
             name: $validated['name'],
             phone: $validated['phone'],
+            email: $validated['email'] ?? null,
             brand: $validated['brand'] ?? null,
             model: $validated['model'] ?? null,
             comment: 'Запрос из каталога',
@@ -82,6 +85,7 @@ class FormSubmissionController extends Controller
          Log::info('Форма из каталога успешно отправлена в amoCRM', [
             'lead_id' => $leadId,
             'name' => $validated['name'],
+            'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'],
             'brand' => $validated['brand'] ?? null,
             'timestamp' => now(),

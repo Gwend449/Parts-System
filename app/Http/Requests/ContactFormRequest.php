@@ -23,6 +23,7 @@ class ContactFormRequest extends FormRequest
    {
       return [
          'name' => 'required|string|min:2|max:255',
+         'email' => 'required|email:rfc,dns',
          'phone' => 'required|regex:/^\+?[\d\s\(\)\-]{10,20}$/',
          'brand' => 'nullable|string|max:255',
          'model' => 'nullable|string|max:255',
@@ -40,6 +41,8 @@ class ContactFormRequest extends FormRequest
          'name.required' => 'Пожалуйста, введите ваше имя',
          'name.min' => 'Имя должно содержать минимум 2 символа',
          'name.max' => 'Имя не должно быть больше 255 символов',
+         'email.required' => 'Пожалуйста, введите вашу почту',
+         'email.email' => 'Пожалуйста, введите корректный адрес почты',
          'phone.required' => 'Пожалуйста, введите ваш телефон',
          'phone.regex' => 'Пожалуйста, введите корректный номер телефона',
          'brand.max' => 'Марка не должна быть больше 255 символов',

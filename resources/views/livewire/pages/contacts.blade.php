@@ -52,6 +52,15 @@
                         <small class="text-danger" style="display: none;" id="nameError"></small>
                     </div>
 
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label for="contactEmail" class="form-label fw-semibold">Email <span
+                                class="text-danger">*</span></label>
+                        <input type="email" class="form-control rounded-3 border-1" id="contactEmail" name="email"
+                            placeholder="ivan@example.com" required>
+                        <small class="text-danger" style="display: none;" id="emailError"></small>
+                    </div>
+
                     <!-- Phone -->
                     <div class="mb-4">
                         <label for="contactPhone" class="form-label fw-semibold">Телефон <span
@@ -121,6 +130,7 @@
             const formData = new FormData(form);
             const data = {
                 name: formData.get('name'),
+                email: formData.get('email'),
                 phone: formData.get('phone'),
                 brand: formData.get('brand'),
                 message: formData.get('message')
