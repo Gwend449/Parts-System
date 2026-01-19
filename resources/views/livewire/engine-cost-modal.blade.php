@@ -17,25 +17,46 @@
                             Чтобы узнать стоимость — заполните данные ниже
                         </p>
 
-                        <form wire:submit.prevent="submit" class="mt-2">
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Ваше имя</label>
-                                <input type="text" wire:model="name" 
-                                       class="form-control form-control-lg rounded-3" required>
+                        @if($successMessage)
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ $successMessage }}
+                                <button type="button" class="btn-close" wire:click="closeModal"></button>
                             </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Телефон</label>
-                                <input type="tel" wire:model="phone" 
-                                       class="form-control form-control-lg rounded-3" required>
+                        @elseif($errorMessage)
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ $errorMessage }}
+                                <button type="button" class="btn-close" wire:click="closeModal"></button>
                             </div>
+                        @else
+                            <form wire:submit.prevent="submit" class="mt-2">
 
-                            <button class="btn btn-brand-primary w-100 fw-bold py-2 rounded-3 fs-6">
-                                Отправить запрос
-                            </button>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Ваше имя</label>
+                                    <input type="text" wire:model="name" 
+                                           class="form-control form-control-lg rounded-3 @error('name') is-invalid @enderror" required>
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                        </form>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Телефон</label>
+                                    <input type="tel" wire:model="phone" 
+                                           class="form-control form-control-lg rounded-3 @error('phone') is-invalid @enderror" required>
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <button type="submit" class="btn btn-brand-primary w-100 fw-bold py-2 rounded-3 fs-6" wire:loading.attr="disabled">
+                                    <span wire:loading.remove>Отправить запрос</span>
+                                    <span wire:loading>
+                                        <span class="spinner-border spinner-border-sm me-2"></span>Отправка...
+                                    </span>
+                                </button>
+
+                            </form>
+                        @endif
                     </div>
 
                 </div>
