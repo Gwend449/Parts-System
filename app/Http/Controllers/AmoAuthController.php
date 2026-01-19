@@ -62,7 +62,7 @@ class AmoAuthController extends Controller
 
             // Используем http_build_query с правильной кодировкой
             $queryString = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
-            $authUrl = "https://{$subdomain}.amocrm.ru/oauth2/authorize?{$queryString}";
+            $authUrl = "https://{$subdomain}.amocrm.ru/oauth?{$queryString}";
 
             Log::info('AmoCRM OAuth: перенаправление на авторизацию', [
                 'auth_url' => $authUrl,
