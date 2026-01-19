@@ -49,8 +49,8 @@ class EngineCostModal extends Component
             // Отправляем в AmoCRM
             $amoService = app(AmoService::class);
 
-            $engineTitle = $this->selectedEngine ? $this->selectedEngine->title : 'Неизвестный двигатель';
-            $comment = "Запрос стоимости двигателя: {$engineTitle}";
+            $engineTitle = $this->selectedEngine ? $this->selectedEngine->title : null;
+            $comment = $engineTitle ? "Запрос стоимости двигателя: {$engineTitle}" : "Запрос стоимости двигателя";
 
             $leadId = $amoService->sendLead(
                 name: $this->name,
@@ -59,7 +59,8 @@ class EngineCostModal extends Component
                 brand: null,
                 model: null,
                 comment: $comment,
-                source: 'Запрос стоимости двигателя'
+                source: 'Запрос стоимости двигателя',
+                engineTitle: $engineTitle
             );
 
             Log::info('Запрос стоимости двигателя отправлен в AmoCRM', [

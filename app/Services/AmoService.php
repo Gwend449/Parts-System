@@ -143,6 +143,7 @@ class AmoService
      * @param string|null $model Модель автомобиля
      * @param string|null $comment Комментарий/сообщение
      * @param string|null $source Источник лида
+     * @param string|null $engineTitle Название мотора (если заявка на конкретный мотор)
      * @return int ID созданного лида
      */
     public function sendLead(
@@ -152,7 +153,8 @@ class AmoService
         ?string $brand = null,
         ?string $model = null,
         ?string $comment = null,
-        ?string $source = null
+        ?string $source = null,
+        ?string $engineTitle = null
     ): int {
         try {
             // 1. Создаем контакт с телефоном и email
@@ -161,6 +163,12 @@ class AmoService
             // 2. Создаем лид с основной информацией
             $lead = new \AmoCRM\Models\LeadModel();
             $leadName = $name ?? 'Лид без названия';
+            
+            // Если заявка на конкретный мотор, добавляем название мотора в начало
+            if ($engineTitle) {
+                $leadName = "{$engineTitle} - {$leadName}";
+            }
+            
             if ($brand) {
                 $leadName .= " ({$brand})";
             }
@@ -216,7 +224,7 @@ class AmoService
             }
 
             // 6. Добавляем комментарий как примечание
-            $noteText = $this->buildNoteText($phone, $brand, $model, $comment, $source);
+            $noteText = $this->buildNoteText($phone, $brand, $model, $comment, $source, $engineTitle);
             if ($noteText) {
                 $this->addNoteToLead($leadId, $noteText);
             }
@@ -406,12 +414,17 @@ class AmoService
         ?string $brand,
         ?string $model,
         ?string $comment,
-        ?string $source
+        ?string $source,
+        ?string $engineTitle = null
     ): string {
         $parts = [];
 
         if ($source) {
             $parts[] = "📌 Источник: {$source}";
+        }
+
+        if ($engineTitle) {
+            $parts[] = "⚙️ Мотор: {$engineTitle}";
         }
 
         if ($phone) {
