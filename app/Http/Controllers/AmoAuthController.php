@@ -52,7 +52,8 @@ class AmoAuthController extends Controller
             ]);
 
             // Формируем URL для авторизации согласно документации AmoCRM
-            // URL должен быть: https://{subdomain}.amocrm.ru/oauth?client_id={client_id}&state={state}&redirect_uri={redirect_uri}
+            // Для публичных интеграций OAuth URL должен быть: https://www.amocrm.ru/oauth
+            // Subdomain используется только для API запросов и обмена кода на токен
             $params = [
                 'client_id' => $clientId,
                 'state' => $state,
@@ -62,7 +63,7 @@ class AmoAuthController extends Controller
 
             // Используем http_build_query с правильной кодировкой
             $queryString = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
-            $authUrl = "https://{$subdomain}.amocrm.ru/oauth?{$queryString}";
+            $authUrl = "https://www.amocrm.ru/oauth?{$queryString}";
 
             Log::info('AmoCRM OAuth: перенаправление на авторизацию', [
                 'auth_url' => $authUrl,
