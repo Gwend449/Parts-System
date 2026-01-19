@@ -13,11 +13,20 @@ class CheckAmoStatus extends Command
 
    public function handle()
    {
-      $token = AmocrmToken::first();
+      $subdomain = config('amocrm.subdomain');
+      
+      // Ищем токен по subdomain если указан, иначе берем первый
+      $token = $subdomain 
+         ? AmocrmToken::where('domain', $subdomain)->first()
+         : AmocrmToken::first();
 
       if (!$token) {
          $this->error('❌ AmoCRM не подключена!');
          $this->info('Перейди по ссылке для авторизации: ' . route('amocrm.install'));
+         $this->line('');
+         $this->warn('Проверьте:');
+         $this->line('- Есть ли токены в БД: ' . (AmocrmToken::count() > 0 ? 'ДА (' . AmocrmToken::count() . ')' : 'НЕТ'));
+         $this->line('- Subdomain в конфиге: ' . ($subdomain ?: 'НЕ УКАЗАН'));
          return 1;
       }
 
