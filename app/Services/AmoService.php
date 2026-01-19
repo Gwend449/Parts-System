@@ -181,14 +181,14 @@ class AmoService
             }
 
             // 4. Отправляем лид в amoCRM
-            $leadResponse = $this->client->api()->leads()->addOne($lead);
+            $leadResponse = $this->client->leads()->addOne($lead);
             $leadId = $leadResponse->getId();
             
             // 5. Если контакт не был связан при создании, связываем отдельным запросом
             if ($contactId) {
                 try {
                     // Проверяем, связан ли контакт
-                    $leadData = $this->client->api()->leads()->getOne($leadId);
+                    $leadData = $this->client->leads()->getOne($leadId);
                     $hasContacts = false;
                     if (method_exists($leadData, 'getContacts')) {
                         $contacts = $leadData->getContacts();
@@ -279,7 +279,7 @@ class AmoService
                 $contact->setCustomFieldsValues($customFieldsValues);
             }
 
-            $response = $this->client->api()->contacts()->addOne($contact);
+            $response = $this->client->contacts()->addOne($contact);
             return $response->getId();
         } catch (\Exception $e) {
             Log::error('Не удалось создать контакт в AmoCRM', [
@@ -308,15 +308,23 @@ class AmoService
         try {
             // Получаем информацию о стандартных полях контактов через API
             // В AmoCRM SDK поля получаются для конкретного типа сущности
-            $fieldsCollection = $this->client->api()->customFields()->get('contacts');
+            $fieldsCollection = $this->client->customFields('contacts')->get();
             
             // Ищем поле по коду
-            if ($fieldsCollection && method_exists($fieldsCollection, 'all')) {
-                $fields = $fieldsCollection->all();
+            if ($fieldsCollection) {
+                $fields = $fieldsCollection;
                 
                 foreach ($fields as $field) {
                     // Стандартные поля имеют определенные коды
-                    if (method_exists($field, 'getCode') && $field->getCode() === $fieldCode) {
+                    // Проверяем оба возможных метода получения кода
+                    $code = null;
+                    if (method_exists($field, 'getFieldCode')) {
+                        $code = $field->getFieldCode();
+                    } elseif (method_exists($field, 'getCode')) {
+                        $code = $field->getCode();
+                    }
+                    
+                    if ($code === $fieldCode) {
                         $fieldId = method_exists($field, 'getId') ? $field->getId() : null;
                         if ($fieldId) {
                             $cache[$fieldCode] = $fieldId;
@@ -329,7 +337,14 @@ class AmoService
                 foreach ($fields as $field) {
                     $fieldName = method_exists($field, 'getName') ? strtolower($field->getName()) : '';
                     $fieldType = method_exists($field, 'getType') ? $field->getType() : '';
-                    $fieldCodeFromApi = method_exists($field, 'getCode') ? $field->getCode() : '';
+                    
+                    // Проверяем оба возможных метода получения кода
+                    $fieldCodeFromApi = null;
+                    if (method_exists($field, 'getFieldCode')) {
+                        $fieldCodeFromApi = $field->getFieldCode();
+                    } elseif (method_exists($field, 'getCode')) {
+                        $fieldCodeFromApi = $field->getCode();
+                    }
                     
                     if ($fieldCode === 'PHONE' && (
                         $fieldCodeFromApi === 'PHONE' ||
@@ -415,6 +430,19 @@ class AmoService
         try {
             $note = new \AmoCRM\Models\NoteModel();
             $note->setEntityId($leadId);
+            
+            // Устанавливаем тип сущности для примечания (lead = сделка)
+            if (method_exists($note, 'setEntityType')) {
+                // Проверяем различные варианты констант
+                if (defined('\AmoCRM\Models\NoteModel::NOTE_TYPE_LEAD')) {
+                    $note->setEntityType(\AmoCRM\Models\NoteModel::NOTE_TYPE_LEAD);
+                } elseif (defined('\AmoCRM\Models\NoteModel::ENTITY_LEAD')) {
+                    $note->setEntityType(\AmoCRM\Models\NoteModel::ENTITY_LEAD);
+                } else {
+                    // Если константы нет, используем строку
+                    $note->setEntityType('leads');
+                }
+            }
 
             // Используем правильные методы
             if (method_exists($note, 'setText')) {
@@ -434,7 +462,7 @@ class AmoService
                 }
             }
 
-            $this->client->api()->notes($leadId)->addOne($note);
+            $this->client->notes()->addOne($note);
 
             Log::info('Примечание успешно добавлено к лиду', [
                 'lead_id' => $leadId,
@@ -457,7 +485,7 @@ class AmoService
     {
         try {
             // Получаем лид
-            $lead = $this->client->api()->leads()->getOne($leadId);
+            $lead = $this->client->leads()->getOne($leadId);
             
             // Добавляем контакт к лиду
             $contactsCollection = new \AmoCRM\Collections\ContactsCollection();
@@ -467,7 +495,7 @@ class AmoService
             $lead->setContacts($contactsCollection);
             
             // Обновляем лид
-            $this->client->api()->leads()->updateOne($lead);
+            $this->client->leads()->updateOne($lead);
             
             Log::info('Контакт успешно связан с лидом', [
                 'lead_id' => $leadId,
