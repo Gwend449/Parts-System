@@ -66,7 +66,7 @@ class AmoService
         }
 
         try {
-            $response = Http::post("https://{$subdomain}.amocrm.ru/oauth2/access_token", [
+            $response = Http::asForm()->post("https://{$subdomain}.amocrm.ru/oauth2/access_token", [
                 'client_id' => $clientId,
                 'client_secret' => $clientSecret,
                 'grant_type' => 'refresh_token',
@@ -145,35 +145,53 @@ class AmoService
             }
             $lead->setName($leadName);
 
-            // 3. Связываем контакт с лидом
-            // В AmoCRM SDK связь контакта с лидом делается через setContactsId или через массив
+            // 3. Связываем контакт с лидом через _embedded
+            // В AmoCRM SDK для публичной интеграции связь делается через _embedded->contacts
             if ($contactId) {
                 try {
-                    if (method_exists($lead, 'setContactsId')) {
-                        $lead->setContactsId([$contactId]);
-                    } elseif (method_exists($lead, 'setLinkedContactId')) {
-                        $lead->setLinkedContactId($contactId);
-                    } else {
-                        // Альтернативный способ - связываем после создания лида
-                        // Это будет сделано в отдельном запросе, если нужно
-                        Log::info('Контакт будет связан с лидом отдельным запросом', [
-                            'contact_id' => $contactId,
-                        ]);
-                    }
+                    // Используем правильный способ связывания через _embedded
+                    $contactsCollection = new \AmoCRM\Collections\ContactsCollection();
+                    $linkedContact = new \AmoCRM\Models\ContactModel();
+                    $linkedContact->setId($contactId);
+                    $contactsCollection->add($linkedContact);
+                    $lead->setContacts($contactsCollection);
                 } catch (\Exception $linkException) {
-                    Log::warning('Не удалось связать контакт с лидом при создании', [
+                    Log::warning('Не удалось связать контакт с лидом при создании, попробуем после создания лида', [
                         'error' => $linkException->getMessage(),
                         'contact_id' => $contactId,
                     ]);
-                    // Продолжаем создание лида без связи (можно связать позже)
                 }
             }
 
             // 4. Отправляем лид в amoCRM
-            $leadResponse = $this->client->leads()->addOne($lead);
+            $leadResponse = $this->client->api()->leads()->addOne($lead);
             $leadId = $leadResponse->getId();
+            
+            // 5. Если контакт не был связан при создании, связываем отдельным запросом
+            if ($contactId) {
+                try {
+                    // Проверяем, связан ли контакт
+                    $leadData = $this->client->api()->leads()->getOne($leadId);
+                    $hasContacts = false;
+                    if (method_exists($leadData, 'getContacts')) {
+                        $contacts = $leadData->getContacts();
+                        $hasContacts = $contacts && $contacts->count() > 0;
+                    }
+                    
+                    if (!$hasContacts) {
+                        $this->linkContactToLead($leadId, $contactId);
+                    }
+                } catch (\Exception $linkException) {
+                    Log::warning('Не удалось связать контакт с лидом после создания', [
+                        'error' => $linkException->getMessage(),
+                        'lead_id' => $leadId,
+                        'contact_id' => $contactId,
+                    ]);
+                    // Не прерываем выполнение, так как лид уже создан
+                }
+            }
 
-            // 5. Добавляем комментарий как примечание
+            // 6. Добавляем комментарий как примечание
             $noteText = $this->buildNoteText($phone, $brand, $model, $comment, $source);
             if ($noteText) {
                 $this->addNoteToLead($leadId, $noteText);
@@ -205,59 +223,65 @@ class AmoService
             $contact = new \AmoCRM\Models\ContactModel();
             $contact->setFirstName($name);
 
-            // Добавляем телефон в контакт
-            // В AmoCRM SDK телефоны добавляются через setCustomFields или через специальные методы
-            // Попробуем использовать setCustomFields для телефона и email
+            // Добавляем телефон и email через CustomFieldsValuesCollection
+            // В AmoCRM SDK для публичной интеграции нужно использовать правильные методы
             try {
-                // Стандартное поле "Телефон" в AmoCRM обычно имеет код "PHONE"
-                // Используем метод для добавления телефона
-                if (method_exists($contact, 'setPhone')) {
-                    $contact->setPhone($phone);
-                } else {
-                    // Альтернативный способ через кастомные поля
-                    $customFields = [
-                        [
-                            'id' => 'PHONE',
-                            'values' => [
-                                [
-                                    'value' => $phone,
-                                    'enum' => 'WORK', // WORK, MOB, HOME и т.д.
-                                ]
-                            ]
-                        ]
-                    ];
+                $customFieldsValues = new \AmoCRM\Collections\CustomFieldsValuesCollection();
+                
+                // Добавляем телефон
+                $phoneField = new \AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel();
+                $phoneField->setFieldId('PHONE'); // Стандартное поле телефона
+                $phoneValues = new \AmoCRM\Collections\CustomFields\CustomFieldEnumsCollection();
+                $phoneValue = new \AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueModel();
+                $phoneValue->setValue($phone);
+                $phoneValue->setEnum('WORK');
+                $phoneValues->add($phoneValue);
+                $phoneField->setValues($phoneValues);
+                $customFieldsValues->add($phoneField);
 
-                    // Добавляем email если указан
-                    if ($email && method_exists($contact, 'setCustomFields')) {
-                        $customFields[] = [
-                            'id' => 'EMAIL',
-                            'values' => [
-                                [
-                                    'value' => $email,
-                                    'enum' => 'WORK',
-                                ]
-                            ]
-                        ];
-                    }
-
-                    if (method_exists($contact, 'setCustomFields')) {
-                        $contact->setCustomFields($customFields);
-                    }
+                // Добавляем email если указан
+                if ($email) {
+                    $emailField = new \AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel();
+                    $emailField->setFieldId('EMAIL'); // Стандартное поле email
+                    $emailValues = new \AmoCRM\Collections\CustomFields\CustomFieldEnumsCollection();
+                    $emailValue = new \AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueModel();
+                    $emailValue->setValue($email);
+                    $emailValue->setEnum('WORK');
+                    $emailValues->add($emailValue);
+                    $emailField->setValues($emailValues);
+                    $customFieldsValues->add($emailField);
                 }
+
+                $contact->setCustomFieldsValues($customFieldsValues);
             } catch (\Exception $phoneException) {
-                Log::warning('Не удалось добавить телефон/email в контакт', [
+                // Если не удалось добавить через CustomFieldsValues, пробуем упрощенный способ
+                Log::warning('Не удалось добавить телефон/email через CustomFieldsValues', [
                     'error' => $phoneException->getMessage(),
                     'phone' => $phone,
                     'email' => $email,
                 ]);
-                // Продолжаем создание контакта без телефона
+                
+                // Пробуем альтернативный способ - через встроенные методы если доступны
+                try {
+                    if (method_exists($contact, 'setPhone')) {
+                        $contact->setPhone($phone);
+                    }
+                    if ($email && method_exists($contact, 'setEmail')) {
+                        $contact->setEmail($email);
+                    }
+                } catch (\Exception $altException) {
+                    Log::debug('Альтернативные методы также не сработали', [
+                        'error' => $altException->getMessage(),
+                    ]);
+                }
             }
 
-            $response = $this->client->contacts()->addOne($contact);
+            $response = $this->client->api()->contacts()->addOne($contact);
             return $response->getId();
         } catch (\Exception $e) {
-            Log::warning('Не удалось создать контакт', [
+            Log::error('Не удалось создать контакт в AmoCRM', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'name' => $name,
                 'phone' => $phone,
                 'email' => $email,
@@ -328,7 +352,7 @@ class AmoService
                 }
             }
 
-            $this->client->notes($leadId)->addOne($note);
+            $this->client->api()->notes($leadId)->addOne($note);
 
             Log::info('Примечание успешно добавлено к лиду', [
                 'lead_id' => $leadId,
@@ -341,6 +365,39 @@ class AmoService
                 'text' => substr($text, 0, 100), // Первые 100 символов для отладки
             ]);
             // Не бросаем исключение, так как примечание - это дополнительная информация
+        }
+    }
+
+    /**
+     * Связать контакт с лидом отдельным запросом
+     */
+    private function linkContactToLead(int $leadId, int $contactId): void
+    {
+        try {
+            // Получаем лид
+            $lead = $this->client->api()->leads()->getOne($leadId);
+            
+            // Добавляем контакт к лиду
+            $contactsCollection = new \AmoCRM\Collections\ContactsCollection();
+            $linkedContact = new \AmoCRM\Models\ContactModel();
+            $linkedContact->setId($contactId);
+            $contactsCollection->add($linkedContact);
+            $lead->setContacts($contactsCollection);
+            
+            // Обновляем лид
+            $this->client->api()->leads()->updateOne($lead);
+            
+            Log::info('Контакт успешно связан с лидом', [
+                'lead_id' => $leadId,
+                'contact_id' => $contactId,
+            ]);
+        } catch (\Exception $e) {
+            Log::warning('Ошибка при связывании контакта с лидом', [
+                'lead_id' => $leadId,
+                'contact_id' => $contactId,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
         }
     }
 }
