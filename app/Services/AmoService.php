@@ -23,7 +23,7 @@ class AmoService
     protected function initClient(): void
     {
         $subdomain = config('amocrm.subdomain');
-        
+
         if (!$subdomain) {
             throw new \Exception('amoCRM не сконфигурирована (subdomain не установлен)');
         }
@@ -79,7 +79,7 @@ class AmoService
             }
 
             $data = $response->json();
-            
+
             // Сохраняем обновленный токен
             $token->update([
                 'access_token' => $data['access_token'],
@@ -114,6 +114,7 @@ class AmoService
      *
      * @param string $name Имя клиента
      * @param string $phone Телефон клиента
+     * @param string|null $email Email клиента
      * @param string|null $brand Марка автомобиля
      * @param string|null $model Модель автомобиля
      * @param string|null $comment Комментарий/сообщение
@@ -123,14 +124,15 @@ class AmoService
     public function sendLead(
         string $name,
         string $phone,
+        ?string $email = null,
         ?string $brand = null,
         ?string $model = null,
         ?string $comment = null,
         ?string $source = null
     ): int {
         try {
-            // 1. Создаем контакт с телефоном
-            $contactId = $this->createOrUpdateContact($name, $phone);
+            // 1. Создаем контакт с телефоном и email
+            $contactId = $this->createOrUpdateContact($name, $phone, $email);
 
             // 2. Создаем лид с основной информацией
             $lead = new \AmoCRM\Models\LeadModel();
@@ -197,15 +199,15 @@ class AmoService
     /**
      * Создать или обновить контакт
      */
-    private function createOrUpdateContact(string $name, string $phone): ?int
+    private function createOrUpdateContact(string $name, string $phone, ?string $email = null): ?int
     {
         try {
             $contact = new \AmoCRM\Models\ContactModel();
             $contact->setFirstName($name);
-            
+
             // Добавляем телефон в контакт
             // В AmoCRM SDK телефоны добавляются через setCustomFields или через специальные методы
-            // Попробуем использовать setCustomFields для телефона
+            // Попробуем использовать setCustomFields для телефона и email
             try {
                 // Стандартное поле "Телефон" в AmoCRM обычно имеет код "PHONE"
                 // Используем метод для добавления телефона
@@ -213,7 +215,7 @@ class AmoService
                     $contact->setPhone($phone);
                 } else {
                     // Альтернативный способ через кастомные поля
-                    $contact->setCustomFields([
+                    $customFields = [
                         [
                             'id' => 'PHONE',
                             'values' => [
@@ -223,12 +225,30 @@ class AmoService
                                 ]
                             ]
                         ]
-                    ]);
+                    ];
+
+                    // Добавляем email если указан
+                    if ($email && method_exists($contact, 'setCustomFields')) {
+                        $customFields[] = [
+                            'id' => 'EMAIL',
+                            'values' => [
+                                [
+                                    'value' => $email,
+                                    'enum' => 'WORK',
+                                ]
+                            ]
+                        ];
+                    }
+
+                    if (method_exists($contact, 'setCustomFields')) {
+                        $contact->setCustomFields($customFields);
+                    }
                 }
             } catch (\Exception $phoneException) {
-                Log::warning('Не удалось добавить телефон в контакт', [
+                Log::warning('Не удалось добавить телефон/email в контакт', [
                     'error' => $phoneException->getMessage(),
                     'phone' => $phone,
+                    'email' => $email,
                 ]);
                 // Продолжаем создание контакта без телефона
             }
@@ -240,6 +260,7 @@ class AmoService
                 'error' => $e->getMessage(),
                 'name' => $name,
                 'phone' => $phone,
+                'email' => $email,
             ]);
             return null;
         }
@@ -287,12 +308,28 @@ class AmoService
     {
         try {
             $note = new \AmoCRM\Models\NoteModel();
-            $note->setText($text);
             $note->setEntityId($leadId);
-            $note->setNoteType(\AmoCRM\Models\NoteModel::COMMON); // Тип примечания: обычное
-            
+
+            // Используем правильные методы
+            if (method_exists($note, 'setText')) {
+                $note->setText($text);
+            } else if (method_exists($note, 'setNote')) {
+                $note->setNote($text);
+            }
+
+            // Устанавливаем тип примечания если метод доступен
+            if (method_exists($note, 'setNoteType')) {
+                try {
+                    if (defined('\AmoCRM\Models\NoteModel::COMMON')) {
+                        $note->setNoteType(\AmoCRM\Models\NoteModel::COMMON);
+                    }
+                } catch (\Exception $e) {
+                    Log::debug('Тип примечания COMMON не доступен', ['error' => $e->getMessage()]);
+                }
+            }
+
             $this->client->notes($leadId)->addOne($note);
-            
+
             Log::info('Примечание успешно добавлено к лиду', [
                 'lead_id' => $leadId,
                 'text_length' => strlen($text),

@@ -1,7 +1,7 @@
 <div>
     @if($showModal && $selectedEngine)
         <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);">
+            style="background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);">
 
             <div class="modal-dialog modal-dialog-centered modal-md">
 
@@ -31,24 +31,37 @@
                             <form wire:submit.prevent="submit" class="mt-2">
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Ваше имя</label>
-                                    <input type="text" wire:model="name" 
-                                           class="form-control form-control-lg rounded-3 @error('name') is-invalid @enderror" required>
+                                    <label class="form-label fw-semibold">Ваше имя <span class="text-danger">*</span></label>
+                                    <input type="text" wire:model="name"
+                                        class="form-control form-control-lg rounded-3 @error('name') is-invalid @enderror"
+                                        required>
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Телефон</label>
-                                    <input type="tel" wire:model="phone" 
-                                           class="form-control form-control-lg rounded-3 @error('phone') is-invalid @enderror" required>
+                                    <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                                    <input type="email" wire:model="email"
+                                        class="form-control form-control-lg rounded-3 @error('email') is-invalid @enderror"
+                                        required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Телефон <span class="text-danger">*</span></label>
+                                    <input type="tel" wire:model="phone"
+                                        class="form-control form-control-lg rounded-3 @error('phone') is-invalid @enderror"
+                                        required>
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <button type="submit" class="btn btn-brand-primary w-100 fw-bold py-2 rounded-3 fs-6" wire:loading.attr="disabled">
+                                <button type="submit" class="btn btn-brand-primary w-100 fw-bold py-2 rounded-3 fs-6"
+                                    wire:loading.attr="disabled">
                                     <span wire:loading.remove>Отправить запрос</span>
                                     <span wire:loading>
                                         <span class="spinner-border spinner-border-sm me-2"></span>Отправка...

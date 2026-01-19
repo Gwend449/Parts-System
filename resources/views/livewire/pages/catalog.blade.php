@@ -35,23 +35,37 @@
                         Заполните форму и мы свяжемся с вами в течение дня
                     </p>
 
-                    <form id="contactForm">
+                    <div id="catalogFormAlert" class="alert alert-dismissible fade" role="alert" style="display: none;">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <div id="catalogFormAlertMessage"></div>
+                    </div>
+
+                    <form id="catalogForm">
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold small">Ваше имя</label>
-                            <input type="text" class="form-control rounded-3 border-1 py-2" placeholder="Иван Иванов"
-                                required>
+                            <label class="form-label fw-semibold small">Ваше имя <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control rounded-3 border-1 py-2" name="name"
+                                placeholder="Иван Иванов" required>
+                            <small class="text-danger" style="display: none;" id="nameError"></small>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold small">Телефон</label>
-                            <input type="tel" class="form-control rounded-3 border-1 py-2" placeholder="+7 (9XX) XXX-XX-XX"
-                                required>
+                            <label class="form-label fw-semibold small">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control rounded-3 border-1 py-2" name="email"
+                                placeholder="ivan@example.com" required>
+                            <small class="text-danger" style="display: none;" id="emailError"></small>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold small">Модель авто</label>
-                            <select class="form-select" wire:model="brand">
+                            <label class="form-label fw-semibold small">Телефон <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control rounded-3 border-1 py-2" name="phone"
+                                placeholder="+7 (9XX) XXX-XX-XX" required>
+                            <small class="text-danger" style="display: none;" id="phoneError"></small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Марка авто</label>
+                            <select class="form-select" name="brand">
                                 <option value="">Выберите марку...</option>
                                 @foreach(\App\Models\Engine::select('brand')->distinct()->pluck('brand') as $b)
                                     <option value="{{ $b }}">{{ $b }}</option>
@@ -61,11 +75,12 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Комментарий (опционально)</label>
-                            <textarea class="form-control rounded-3 border-2" rows="3"
+                            <textarea class="form-control rounded-3 border-2" rows="3" name="message"
                                 placeholder="Добавьте дополнительную информацию..."></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-brand-primary w-100 fw-bold py-2 rounded-3">
+                        <button type="submit" class="btn btn-brand-primary w-100 fw-bold py-2 rounded-3"
+                            id="catalogSubmitBtn">
                             Отправить запрос
                         </button>
 
@@ -83,4 +98,86 @@
 
             </div>
         </div>
+    </div>
+
+    <script>
+        document.getElementById('catalogForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const form = this;
+            const submitBtn = document.getElementById('catalogSubmitBtn');
+            const alert = document.getElementById('catalogFormAlert');
+            const alertMessage = document.getElementById('catalogFormAlertMessage');
+
+            // Очищаем предыдущие ошибки
+            document.querySelectorAll('small[id$="Error"]').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            alert.style.display = 'none';
+
+            // Собираем данные формы
+            const formData = new FormData(form);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                brand: formData.get('brand'),
+                message: formData.get('message')
+            };
+
+            // Отправляем на сервер
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Отправка...';
+
+            try {
+                const response = await fetch('{{ route("api.catalog-form") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Успешно отправлено
+                    alert.className = 'alert alert-success alert-dismissible fade show';
+                    alertMessage.textContent = result.message;
+                    alert.style.display = 'block';
+
+                    // Очищаем форму
+                    form.reset();
+                } else {
+                    // Ошибка валидации
+                    alert.className = 'alert alert-danger alert-dismissible fade show';
+
+                    if (result.errors) {
+                        // Выводим ошибки валидации
+                        Object.keys(result.errors).forEach(field => {
+                            const errorElement = document.getElementById(field + 'Error');
+                            if (errorElement) {
+                                errorElement.textContent = result.errors[field][0];
+                                errorElement.style.display = 'block';
+                            }
+                        });
+                        alertMessage.textContent = 'Пожалуйста, исправьте ошибки в форме';
+                    } else {
+                        alertMessage.textContent = result.message || 'Произошла ошибка при отправке формы';
+                    }
+                    alert.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert.className = 'alert alert-danger alert-dismissible fade show';
+                alertMessage.textContent = 'Произошла ошибка при отправке. Попробуйте позже.';
+                alert.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Отправить запрос';
+            }
+        });
+    </script>
 @endsection
