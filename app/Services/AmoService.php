@@ -49,12 +49,19 @@ class AmoService
             'refresh_token' => $token->refresh_token,
         ];
 
-        // Добавляем expires_in если есть expires_at
+        // Добавляем expires (Unix timestamp) если есть expires_at
+        // SDK ожидает поле 'expires' с Unix timestamp, а не 'expires_in'
         if ($token->expires_at) {
-            $expiresIn = $token->expires_at->diffInSeconds(now());
-            if ($expiresIn > 0) {
-                $accessTokenData['expires_in'] = $expiresIn;
-            }
+            // expires должен быть Unix timestamp, когда токен истекает
+            $accessTokenData['expires'] = $token->expires_at->timestamp;
+        } else {
+            // Если expires_at не установлено, устанавливаем его как истекший
+            // чтобы SDK попытался обновить токен при следующем запросе
+            // или устанавливаем время в будущем (например, через час по умолчанию)
+            $accessTokenData['expires'] = now()->addHour()->timestamp;
+            Log::warning('AmoCRM токен не имеет expires_at, используется временное значение', [
+                'domain' => $subdomain,
+            ]);
         }
 
         $accessToken = new AccessToken($accessTokenData);
