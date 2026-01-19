@@ -164,6 +164,7 @@ class AmoAuthController extends Controller
             
             // Если referer это полный URL, извлекаем subdomain
             if ($referer && strpos($referer, '.amocrm.ru') !== false) {
+                // Извлекаем subdomain из URL (например: https://fastis02.amocrm.ru -> fastis02)
                 $referer = preg_replace('/^https?:\/\/([^.]+)\.amocrm\.ru.*/', '$1', $referer);
             }
             
@@ -181,8 +182,13 @@ class AmoAuthController extends Controller
                     ->with('error', 'Ошибка: не удалось определить поддомен AmoCRM. Проверьте логи.');
             }
             
+            // Нормализуем subdomain - убираем .amocrm.ru если он уже есть
+            // Это важно, так как subdomain может прийти как "fastis02.amocrm.ru" или как "fastis02"
+            $subdomain = preg_replace('/\.amocrm\.ru$/', '', $subdomain);
+            
             Log::info('AmoCRM OAuth: subdomain определен', [
-                'subdomain' => $subdomain,
+                'subdomain_raw' => $referer ?: ($stateRecord->subdomain ?? config('amocrm.subdomain')),
+                'subdomain_normalized' => $subdomain,
                 'source' => $referer ? 'referer' : ($stateRecord->subdomain ? 'state_record' : 'config'),
             ]);
 
@@ -237,7 +243,8 @@ class AmoAuthController extends Controller
             }
 
             // Определяем baseDomain (subdomain без .amocrm.ru)
-            $baseDomain = $subdomain;
+            // Убеждаемся, что subdomain нормализован (без .amocrm.ru)
+            $baseDomain = preg_replace('/\.amocrm\.ru$/', '', $subdomain);
 
             // Сохраняем токен в БД
             $token = AmocrmToken::updateOrCreate(
