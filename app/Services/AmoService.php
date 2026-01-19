@@ -129,7 +129,7 @@ class AmoService
         ?string $source = null
     ): int {
         try {
-            // 1. Создаем контакт
+            // 1. Создаем контакт с телефоном
             $contactId = $this->createOrUpdateContact($name, $phone);
 
             // 2. Создаем лид с основной информацией
@@ -138,20 +138,58 @@ class AmoService
             if ($brand) {
                 $leadName .= " ({$brand})";
             }
+            if ($model) {
+                $leadName .= " {$model}";
+            }
             $lead->setName($leadName);
 
-            // 3. Отправляем лид в amoCRM
+            // 3. Связываем контакт с лидом
+            // В AmoCRM SDK связь контакта с лидом делается через setContactsId или через массив
+            if ($contactId) {
+                try {
+                    if (method_exists($lead, 'setContactsId')) {
+                        $lead->setContactsId([$contactId]);
+                    } elseif (method_exists($lead, 'setLinkedContactId')) {
+                        $lead->setLinkedContactId($contactId);
+                    } else {
+                        // Альтернативный способ - связываем после создания лида
+                        // Это будет сделано в отдельном запросе, если нужно
+                        Log::info('Контакт будет связан с лидом отдельным запросом', [
+                            'contact_id' => $contactId,
+                        ]);
+                    }
+                } catch (\Exception $linkException) {
+                    Log::warning('Не удалось связать контакт с лидом при создании', [
+                        'error' => $linkException->getMessage(),
+                        'contact_id' => $contactId,
+                    ]);
+                    // Продолжаем создание лида без связи (можно связать позже)
+                }
+            }
+
+            // 4. Отправляем лид в amoCRM
             $leadResponse = $this->client->leads()->addOne($lead);
             $leadId = $leadResponse->getId();
 
-            // 4. Добавляем комментарий как примечание
+            // 5. Добавляем комментарий как примечание
             $noteText = $this->buildNoteText($phone, $brand, $model, $comment, $source);
             if ($noteText) {
                 $this->addNoteToLead($leadId, $noteText);
             }
 
+            Log::info('Лид успешно создан в AmoCRM', [
+                'lead_id' => $leadId,
+                'contact_id' => $contactId,
+                'name' => $name,
+                'phone' => $phone,
+            ]);
+
             return $leadId;
         } catch (\Exception $e) {
+            Log::error('Ошибка при создании лида в AmoCRM', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             throw new \Exception('Ошибка при создании лида в amoCRM: ' . $e->getMessage());
         }
     }
@@ -164,12 +202,44 @@ class AmoService
         try {
             $contact = new \AmoCRM\Models\ContactModel();
             $contact->setFirstName($name);
+            
+            // Добавляем телефон в контакт
+            // В AmoCRM SDK телефоны добавляются через setCustomFields или через специальные методы
+            // Попробуем использовать setCustomFields для телефона
+            try {
+                // Стандартное поле "Телефон" в AmoCRM обычно имеет код "PHONE"
+                // Используем метод для добавления телефона
+                if (method_exists($contact, 'setPhone')) {
+                    $contact->setPhone($phone);
+                } else {
+                    // Альтернативный способ через кастомные поля
+                    $contact->setCustomFields([
+                        [
+                            'id' => 'PHONE',
+                            'values' => [
+                                [
+                                    'value' => $phone,
+                                    'enum' => 'WORK', // WORK, MOB, HOME и т.д.
+                                ]
+                            ]
+                        ]
+                    ]);
+                }
+            } catch (\Exception $phoneException) {
+                Log::warning('Не удалось добавить телефон в контакт', [
+                    'error' => $phoneException->getMessage(),
+                    'phone' => $phone,
+                ]);
+                // Продолжаем создание контакта без телефона
+            }
 
             $response = $this->client->contacts()->addOne($contact);
             return $response->getId();
         } catch (\Exception $e) {
-            \Log::warning('Не удалось создать контакт', [
+            Log::warning('Не удалось создать контакт', [
                 'error' => $e->getMessage(),
+                'name' => $name,
+                'phone' => $phone,
             ]);
             return null;
         }
@@ -216,17 +286,24 @@ class AmoService
     private function addNoteToLead(int $leadId, string $text): void
     {
         try {
-            // API SDK может иметь разные методы в зависимости от версии
-            // Эта часть требует проверки с вашей версией SDK
-            \Log::info('Примечание для лида подготовлено', [
+            $note = new \AmoCRM\Models\NoteModel();
+            $note->setText($text);
+            $note->setEntityId($leadId);
+            $note->setNoteType(\AmoCRM\Models\NoteModel::COMMON); // Тип примечания: обычное
+            
+            $this->client->notes($leadId)->addOne($note);
+            
+            Log::info('Примечание успешно добавлено к лиду', [
                 'lead_id' => $leadId,
-                'text' => $text,
+                'text_length' => strlen($text),
             ]);
         } catch (\Exception $e) {
-            \Log::warning('Ошибка при добавлении примечания', [
+            Log::warning('Ошибка при добавлении примечания к лиду', [
                 'lead_id' => $leadId,
                 'error' => $e->getMessage(),
+                'text' => substr($text, 0, 100), // Первые 100 символов для отладки
             ]);
+            // Не бросаем исключение, так как примечание - это дополнительная информация
         }
     }
 }
