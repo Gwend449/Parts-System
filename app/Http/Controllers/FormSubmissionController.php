@@ -71,6 +71,9 @@ class FormSubmissionController extends Controller
       try {
          $validated = $request->validated();
 
+         // Формируем комментарий из сообщения пользователя или используем стандартный текст
+         $comment = $validated['message'] ?? $validated['comment'] ?? 'Запрос из каталога';
+
          // Отправляем лид в amoCRM
          $leadId = $this->amoService->sendLead(
             name: $validated['name'],
@@ -78,7 +81,7 @@ class FormSubmissionController extends Controller
             email: $validated['email'] ?? null,
             brand: $validated['brand'] ?? null,
             model: $validated['model'] ?? null,
-            comment: 'Запрос из каталога',
+            comment: $comment,
             source: 'Каталог'
          );
 
